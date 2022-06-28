@@ -1,0 +1,8 @@
+function git_push_file(nv)
+arguments
+    nv.file_name () char
+    nv.remote_folder (char)
+end
+
+  ['!git add ' nv.remote_folder '/' copy_struct_fields.m ]
+  !git add copy_struct_fields.m
