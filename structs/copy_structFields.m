@@ -1,11 +1,12 @@
-function y = copy_struct_fields(nv)
+function y = copy_structFields(nv)
+% nv is name value pairs
 % % Example use
 % struct1.a=1;
 % struct1.b=2;
 % struct2.blabla='asdadfxf';
 % struct2 = copy_struct_fields(src = struct1,dest = struct2,fields={'a','b'})
-% struct2 = copy_struct_fields(nv) % second possible call
-% nv is name value pairs
+% struct2 = copy_struct_fields(someSettingsStructure) % second possible call
+
 arguments
    nv.src (1,1) struct = []; 
    nv.dest (1,1) struct = [];

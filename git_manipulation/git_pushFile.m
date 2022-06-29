@@ -1,4 +1,4 @@
-function git_push_file(nv)
+function git_pushFile(nv)
 arguments
     nv.file_name (1,:) char
     nv.remote_folder (1,:) char
