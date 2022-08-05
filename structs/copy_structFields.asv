@@ -1,5 +1,5 @@
 function y = copy_structFields(pv)
-% pv is property value pairs
+% pv is name value pairs
 % % Example use
 % struct1.a=1;
 % struct1.b=2;
