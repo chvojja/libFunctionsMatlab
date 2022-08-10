@@ -8,7 +8,7 @@ classdef Verboser < handle
         name;
         verbose; % defualt behavior
         verboser = struct;
-        
+        verboser.
     end
     
     methods
@@ -20,7 +20,6 @@ classdef Verboser < handle
             end
             o.name = pv.Name;
             o.verbose = pv.Verbose;
- 
             % Put here some common messages
             % Errors and Warnings
             o.addMessage('Warning','-------------- A warning ----------------');

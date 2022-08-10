@@ -1,4 +1,4 @@
-function [subject,time_dn,station,type] = VKJ_parseFileName(fname)
+function [subject,number,time_dn,station,type] = VKJ_parseFileName(fname)
 %VKJ_PARSEFILENAME 
 % parses file name in VKJ format
 isMatIdx = regexpi(fname,'.mat$');
@@ -10,6 +10,10 @@ if ~isempty(isMatIdx)
         time_dn = datenum(yymmdd_hhmmss,['yymmddHHMMSS']);
         
         subject = subStringMatch(1:yymmdd_hhmmssIdx-2);
+        number = regexp(subject,'\d+','match','once');
+        if isempty(number)
+            number = NaN;
+        end
 
         %stationAndregexpi(fname,'\-[A-Z]+\d*(\-\d+)*\.mat$','match','once')
 

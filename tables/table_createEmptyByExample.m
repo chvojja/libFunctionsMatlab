@@ -1,6 +1,9 @@
 function y = table_createEmptyByExample(Nrows,ColumnName,DataExample)
 % % Example use
-
+% Nrows = 10;
+% Tmytable = table_createEmpty(Nrows,'ID',1,'Subject',rat1','Number',5,'Treatment','shitovacka'); % one row per subject    
+% cat = categorical
+% logi = logical
 arguments
    Nrows = 0;
 end
