@@ -7,8 +7,7 @@ classdef Verboser < handle
     properties
         name;
         verbose; % defualt behavior
-        verboser = struct;
-        
+        verboser = struct;  
     end
     
     methods

@@ -35,7 +35,7 @@ classdef MEcohort < Verboser
 
             o.Tsub = table_createEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','Treatment','cat','Role','cat'); % one row per subject    
             o.Tdat = table_createEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical'); % one row per data folder
-            o.Tdati = table_createEmpty(o.N_Trows,'ID','double','Subject','cat','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical'); % one row per data folder
+            o.Tdati = table_createEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical'); % one row per data folder
 %             o.T.eeg = table_createEmpty(o.N_Trows,'Fs','double','Channels','cell','CountCh','double');
             
             o.sprintf2('ConstructorSuccess', o.N_Trows);
@@ -98,7 +98,46 @@ classdef MEcohort < Verboser
                 nv.ID=ID_Tdat; % add ID so that it will be filled together
                 o.Tdat = table_fillRowByFields(Table = o.Tdat, Row = nv.ID, DataStructure = nv);
                  
-                o.VKJ_scanDataByID(ID = ID_Tdat); % look to the folder and gather other info
+                o.VKJ_scanVKJDataByID(ID = ID_Tdat); % look to the folder and gather other info - and store it in Tdati
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                %table_resolveConflict(o.Tdati(ID_Tdat,:),o.Tdat(ID_Tdat,:),'MV')
+                res  = table_compareCopy(Obj=o, Left = 'Tdati', Right = 'Tdat', ID = ID_Tdat,...
+                    onMissingLeftHavingRight={ @(x)us(o,x), },...
+                    onSame= @(x)onSameNumber(o)     );
+  
+
+
+%                 if ~isempty( o.Tdati.Subject(ID_Tdat) ) && 
+% 
+%                 end
+                % Number
+
+
+            
+
+                if different.Number
+                            o.disp2('ErrorHuge');
+                            o.sprintf2('MismatchNumber', nv.Number);
+                            return
+                end
+                if missing.Number==0b10
+                            o.disp2('Warning');
+                            o.sprintf2('UsingNumberByUser', nv.Number);
+                end
+                if same.Number
+                        o.sprintf2('MatchesNumber', nv.Number);
+                end
+                if missing.Number==0b01
+                         o.disp2('Warning');
+                         o.sprintf2('CouldNotVerifyNumber', NumberFoundByScanning );
+                end
+                if missing.Number==0b11
+                         o.disp2('ErrorHuge');
+                         o.sprintf2('UnknownNumber');
+                         return
+                end
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 SubjectFoundByScanning = char(o.Tdati.Subject(ID_Tdat));
                 if isempty(SubjectFoundByScanning)
@@ -110,23 +149,7 @@ classdef MEcohort < Verboser
                 NumberFoundByScanning = o.Tdat.Number(ID_Tdat); % it is permitted not to find a number, in this case, the user should provide
                 %b_addWhateverInTDatiAsSubject=false; 
                 
-                % Subject
-                if ~isempty(nv.Subject) % handle the Subject name provided by user
-                    if ~strcmp(nv.Subject,SubjectFoundByScanning)
-                        o.disp2('ErrorHuge');
-                        o.sprintf2('MismatchSubject', nv.Subject);
 
-                        %b_addWhateverInTDatiAsSubject=false;
-                        return
-                    else
-                        o.sprintf2('MatchesSubject', nv.Subject);
-                        %b_addWhateverInTDatiAsSubject=true;
-                    end
-                else
-                    %b_addWhateverInTDatiAsSubject=true;
-                     o.disp2('Warning');
-                     o.sprintf2('CouldNotVerifySubject', SubjectFoundByScanning );
-                end
 
                 % Number
                 if ~isempty(nv.Number) % handle the Number provided by user 
@@ -171,14 +194,25 @@ classdef MEcohort < Verboser
                 o.disp2('MissingArguments');
                 return
             end
+            % Functions overrridings
+            function onMissingLeftNumber(o,res)
+                        o.disp2('Warning');
+                        o.sprintf2('UsingNumberByUser', nv.Number);
+
+            end
+            function onSameNumber(o,res)
+                        o.disp2('Warning');
+                        o.sprintf2('UsingNumberByUser', nv.Number);
+
+            end
 
         end
 
-        function VKJ_scanDataByID(o,nv)
+        function VKJ_scanVKJDataByID(o,nv)
         % VKJ_scanDataBy
         % is played on cohort object only for VKJ format data
         % get the fucking info about one subject from cohort
-        % some info may already be in Tdat and this function validates if its ok or not
+        % the function creates Tdati
         arguments
             o = []  % COHORT OBJECT o.Tdat table: RootDir, Folder and ID is expected here
             nv.ID double % this is Tdat ID
@@ -193,12 +227,38 @@ classdef MEcohort < Verboser
             end
             onlyEegL = strcmp({info.type},'eeg');
             subjectsEegFilesC = {info(  onlyEegL   ).subject} ;
+
             % update Tdati
             o.Tdati.ID(nv.ID)  = nv.ID;
             o.Tdati.SingleSubject(nv.ID) = isequal(subjectsEegFilesC{:});
             o.Tdati.Files(nv.ID) = numel(subjectsEegFilesC);
-            o.Tdati.Subject(nv.ID) = subjectsEegFilesC{1};
- 
+            SubjectFoundByScanning = subjectsEegFilesC{1};
+            o.Tdati.Subject(nv.ID) = SubjectFoundByScanning;
+
+            % dodelat
+%             % Subject
+%             if ~isempty(nv.Subject) % handle the Subject name provided by user
+%                 if ~strcmp(nv.Subject,SubjectFoundByScanning)
+%                     o.disp2('ErrorHuge');
+%                     o.sprintf2('MismatchSubject', nv.Subject);
+% 
+%                     %b_addWhateverInTDatiAsSubject=false;
+%                     return
+%                 else
+%                     o.sprintf2('MatchesSubject', nv.Subject);
+%                     %b_addWhateverInTDatiAsSubject=true;
+%                 end
+%             else
+%                 %b_addWhateverInTDatiAsSubject=true;
+%                  o.disp2('Warning');
+%                  o.sprintf2('CouldNotVerifySubject', SubjectFoundByScanning );
+%             end
+%             char(o.Tdati.Subject(ID_Tdat));
+%             if isempty(SubjectFoundByScanning)
+%                  o.disp2('ErrorHuge');
+%                  o.sprintf2('UnknownSubject');
+%                  return
+%             end
 
             startDns = [info(  onlyEegL   ).timeDn];
             startDns = sort(startDns);
@@ -268,6 +328,7 @@ classdef MEcohort < Verboser
 
 
 %%%%%%%%%%%%%%% end
-end
+    
+    end
 end
 
