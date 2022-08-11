@@ -7,8 +7,8 @@ arguments
     nv.Repository = 'yourRepositoryName'
 end
 
-% system(['git add origin git@github.com:chvojja/' nv.Repository '.git  & git remote -v']); % ampersand separates the commands
-system(['git remote add origin https://github.com/chvojja/' nv.Repository '.git  & git remote -v']); % ampersand separates the commands
+% system(['git add origin git@github.com:chvojja/' nv.Repository '.git  & git remote -v']); % ampersand separates the commands https://github.com/chvojja/FCD-mTOR-HFO-paper.git
+system(['git add origin git@github.com:chvojja/' nv.Repository '.git  & git remote -v']); % ampersand separates the commands
 %     !git add .
 %     !git commit -m "uploaded from Matlab using git_upload()"
 %     !git push

@@ -15,13 +15,13 @@ if isfile('.git/config')
          gitAddress = gitAddress{1};
          gitAccount = regexp(gitAddress,'(?<=https://github.com/)\D+(?=/)','match');
          if ~isempty(gitAccount) 
-             if ~strcmp(gitAccount {1},nv.GitAccount)
+             if ~strcmp(nv.RemoteRepo,'yourRepositoryName')
                  disp('Git accounts dont match!!')
              else
                 nv.GitAccount  = gitAccount {1};
-                
              end
-             system('git add . & git commit -m "uploaded from Matlab using gitUpload()" & git push'); % ampersand separates the commands
+             
+    
     
          else
              disp('Git Account name could not be found.')
@@ -38,10 +38,11 @@ else
     disp('The working directory is not recognised as a local git repo...')
 end
 
+if isempty(gitAddressIdx)
+configFile(gitAddressIdx:)
 
 
-
-
+system('git add . & git commit -m "uploaded from Matlab using gitUpload()" & git push'); % ampersand separates the commands
 % system('cmd /C git commit -m "uploaded from Matlab using git_upload()" ');
 
 %     !git add .
