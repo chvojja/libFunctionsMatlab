@@ -4,6 +4,7 @@ function gitUpload(nv)
 % and cloned using git clone https://github.com/libgit2/libgit2
 % 
 arguments
+    nv.Comment = 'uploaded from Matlab using gitUpload()'
     nv.GitAccount = 'chvojja'
     nv.RemoteRepo = 'yourRepositoryName';
 end
@@ -21,7 +22,7 @@ if isfile('.git/config')
                 nv.GitAccount  = gitAccount {1};
                 
              end
-             system('git add . & git commit -m "uploaded from Matlab using gitUpload()" & git push'); % ampersand separates the commands
+             system(['git add . & git commit -m "' nv.Comment '" & git push']); % ampersand separates the commands
     
          else
              disp('Git Account name could not be found.')
