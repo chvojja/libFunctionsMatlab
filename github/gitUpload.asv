@@ -6,8 +6,7 @@ function gitUpload(nv)
 
 arguments
     nv.Comment = 'uploaded from Matlab using gitUpload()'
-    nv.Repo = 'yourRepositoryName';
-    nv.RepoURL = []; % you get this by copy pastinf from web
+    nv.RemoteRepo = 'yourRepositoryName';
 end
 addressSSH = 'git@github.com:';
 addressURL = 'https://github.com/';
@@ -32,12 +31,8 @@ if isfile('.git/config')
 
     else % if the local directory is not linked with the remote git repo yet
         % we dont have the local repo added to remote git repo, so we need to do:
-        if ~strcmp(nv.Repo,'yourRepositoryName') % RemoteRepo was provided
-            if ~isempty(nv.RepoURL)
-                system(['git remote add origin ' nv.RepoURL ' & git remote -v']); % ampersand separates the commands
-            else
-                system(['git remote add origin https://github.com/' gitAccount '/' nv.Repo '.git  & git remote -v']); % ampersand separates the commands
-            end
+        if ~strcmp(nv.RemoteRepo,'yourRepositoryName') % RemoteRepo was provided
+            system(['git remote add origin https://github.com/' gitAccount '/' nv.RemoteRepo '.git  & git remote -v']); % ampersand separates the commands
         else
             disp('Run this function again, but add the RemoteRepo parameter!'); % here we dont know the remote repo name
         end
