@@ -6,24 +6,29 @@ function gitUpload(nv)
 
 arguments
     nv.Comment = 'uploaded from Matlab using gitUpload()'
-    nv.GitAccount = 'chvojja'
+    nv.GitAccount = 'chvojja' 
     nv.RemoteRepo = 'yourRepositoryName';
 end
+addressSSH = 'git@github.com:';
+addressURL = 'https://github.com/';
+
+% user.name=chvojja
+
 
 if isfile('.git/config')
     configFile=fileread('.git/config');
-    gitAddress = regexp(configFile,'https://github.com/\D+.git','match');
+    gitAddress = regexp(configFile,[addressURL '\D+.git'],'match'); %chvojja/
     if ~isempty(gitAddress)
          gitAddress = gitAddress{1};
-         gitAccount = regexp(gitAddress,'(?<=https://github.com/)\D+(?=/)','match');
+         gitAccount = regexp(gitAddress,['(?<=' addressURL ')\D+(?=/)'],'match');
          if ~isempty(gitAccount) 
              if ~strcmp(gitAccount {1},nv.GitAccount)
                  disp('Git accounts dont match!!')
              else
                 nv.GitAccount  = gitAccount {1};
                 
-             end
-             system(['git add . & git commit -m "' nv.Comment '" & git push']); % ampersand separates the commands
+             end %git push -u origin master
+             system(['git add . & git commit -m "' nv.Comment '" & git push -u origin main']); % ampersand separates the commands
     
          else
              disp('Git Account name could not be found.')
