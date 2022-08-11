@@ -6,8 +6,11 @@ function git_upload()
 arguments
 
 end
-    !git add .
-    !git commit -m "uploaded from Matlab using git_upload()"
-    !git push
+system('git add . & git commit -m "uploaded from Matlab using git_upload()" & git push');
+% system('cmd /C git commit -m "uploaded from Matlab using git_upload()" ');
+% system('cmd /C git push &');
+%     !git add .
+%     !git commit -m "uploaded from Matlab using git_upload()"
+%     !git push
 end
 
