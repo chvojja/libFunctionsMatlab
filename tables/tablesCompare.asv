@@ -1,0 +1,18 @@
+function [tblTags,tblVals] = tablesCompare(T1,T2,tblQuest)
+%TABLESCOMPARE Compares two tables T1 and T2
+% takes a structure of tags with specified conditions on which to respond
+% 
+tags = fieldnames(tblQuest);
+Ntags=length(tags);
+
+for kt = 1:Ntags
+    tag = tags{kt};
+    tblQuest.(tag).
+
+end
+
+tags = [];
+vals = [];
+
+end
+

@@ -57,7 +57,7 @@ classdef MEcohort < Verboser
             o.addMessage('NotFoundSubjectNumber','The number for subject: %s was not found.');
             o.addMessage('FoundSubjectNumber','The number for subject: %s is: %d');
             o.addMessage('MismatchSubjectNumber','I found more numbers for the same subject: %s');
-            o.addMessage('UsingNumberProvided','Number of the subject not found. Using the number provided by the user.');
+            o.addMessage('UsingUsersNumber','Number of the subject not found. Using the number provided by the user: %d');
             o.addMessage('AddingData','Trying to add a data in the following path: %s    %s')
         end
 
@@ -101,33 +101,37 @@ classdef MEcohort < Verboser
                 o.VKJ_scanVKJDataByID(ID = ID_Tdat); % look to the folder and gather other info - and store it in Tdati
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 %table_resolveConflict(o.Tdati(ID_Tdat,:),o.Tdat(ID_Tdat,:),'MV')
-                res  = table_compareCopy(Obj=o, Left = 'Tdati', Right = 'Tdat', ID = ID_Tdat,...
-                    onMissingLeftHavingRight={ @(x)us(o,x), },...
-                    onSame= @(x)onSameNumber(o)     );
-  
+                table_compareFun(Obj=o, Left = 'Tdati', Right = 'Tdat', ID = ID_Tdat,...
+                    onMissingLeftHavingRight={ @(x)userProvidedNumber(o,x), @(x)unknownSubject(o,x) },...
+                    onMissingRightHavingLeft={ @(x)usingScannedNumber(o,x), @(x)usingScannedSubject(o,x) },...
+                    onMissingBoth={ @(x)unknownNumber(o,x), @(x)unknownSubject(o,x)},...
+                    onSame={ @(x)matchesNumber(o,x), @(x)matchesSubject(o,x) },...
+                    onDifferent={ @(x)mismatchNumber(o,x), @(x)mismatchSubject(o,x) }   );
 
 
-%                 if ~isempty( o.Tdati.Subject(ID_Tdat) ) && 
-% 
-%                 end
-                % Number
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % questions
+                tblRes.UsingUsersNumber.missing.Number=0b10;
+                tblRes.MismatchNumber.different.Number=true;
+                tblRes.MatchesNumber.same.Number=true;
+                tblRes.CouldNotVerifyNumber.missing.Number=0b01;
+                tblRes.UnknownNumber.missing.Number=0b11;
 
+                [tblTags,tblVals] = tablesCompare(o.Tdati,o.Tdat,tblRes)
 
-            
-
-                if different.Number
+                if tblTags.MismatchNumber
                             o.disp2('ErrorHuge');
-                            o.sprintf2('MismatchNumber', nv.Number);
+                            o.sprintf2('MismatchNumber', tblVals.Left.Number);
                             return
                 end
-                if missing.Number==0b10
+                if tblRes.UsingUsersNumber
                             o.disp2('Warning');
-                            o.sprintf2('UsingNumberByUser', nv.Number);
+                            o.sprintf2('UsingUsersNumber', tblRes.UsingUsersNumber.Number);
                 end
-                if same.Number
-                        o.sprintf2('MatchesNumber', nv.Number);
+                if tblRes.MatchesNumber
+                        o.sprintf2('MatchesNumber', tblRes.MatchesNumber.Number);
                 end
-                if missing.Number==0b01
+                if tblRes.CouldNotVerifyNumber
                          o.disp2('Warning');
                          o.sprintf2('CouldNotVerifyNumber', NumberFoundByScanning );
                 end
@@ -137,8 +141,15 @@ classdef MEcohort < Verboser
                          return
                 end
 
+                            function userProvidedNumber(o,tblResults)
+                        o.disp2('Warning');
+                        o.sprintf2('UsingUsersNumber', tblResults.Number);
+                            end
+ 
+   
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
                 SubjectFoundByScanning = char(o.Tdati.Subject(ID_Tdat));
                 if isempty(SubjectFoundByScanning)
                      o.disp2('ErrorHuge');
@@ -194,17 +205,31 @@ classdef MEcohort < Verboser
                 o.disp2('MissingArguments');
                 return
             end
-            % Functions overrridings
-            function onMissingLeftNumber(o,res)
+
+            % Functions on how to respond to results of table comparision
+            function userProvidedNumber(o,tblResults)
                         o.disp2('Warning');
-                        o.sprintf2('UsingNumberByUser', nv.Number);
+                        o.sprintf2('UsingUsersNumber', tblResults.Number);
+            end
+            function usingScannedNumber(o,tblResults)
+                         o.disp2('Warning');
+                         o.sprintf2('CouldNotVerifyNumber', tblResults.Number);
 
             end
-            function onSameNumber(o,res)
-                        o.disp2('Warning');
-                        o.sprintf2('UsingNumberByUser', nv.Number);
-
+            function matchesNumber(o,tblResults)
+                        o.sprintf2('MatchesNumber', tblResults.Number);
             end
+            function mismatchNumber(o,tblResults)
+                            o.disp2('ErrorHuge');
+                            o.sprintf2('MismatchNumber', tblResults.Number);
+                            return
+            end
+            function unknownNumber(o,tblResults)
+                         o.disp2('ErrorHuge');
+                         o.sprintf2('UnknownNumber');
+                            return
+            end
+
 
         end
 

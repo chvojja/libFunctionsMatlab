@@ -39,3 +39,25 @@ y = [];
 
 end
 
+
+%        if different.Number
+%                             o.disp2('ErrorHuge');
+%                             o.sprintf2('MismatchNumber', nv.Number);
+%                             return
+%                 end
+%                 if missing.Number==0b10
+%                             o.disp2('Warning');
+%                             o.sprintf2('UsingNumberByUser', nv.Number);
+%                 end
+%                 if same.Number
+%                         o.sprintf2('MatchesNumber', nv.Number);
+%                 end
+%                 if missing.Number==0b01
+%                          o.disp2('Warning');
+%                          o.sprintf2('CouldNotVerifyNumber', NumberFoundByScanning );
+%                 end
+%                 if missing.Number==0b11
+%                          o.disp2('ErrorHuge');
+%                          o.sprintf2('UnknownNumber');
+%                          return
+%                 end

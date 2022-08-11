@@ -99,46 +99,52 @@ classdef MEcohort < Verboser
                 o.Tdat = table_fillRowByFields(Table = o.Tdat, Row = nv.ID, DataStructure = nv);
                  
                 o.VKJ_scanVKJDataByID(ID = ID_Tdat); % look to the folder and gather other info - and store it in Tdati
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                %table_resolveConflict(o.Tdati(ID_Tdat,:),o.Tdat(ID_Tdat,:),'MV')
-                res  = table_compareFun(Obj=o, Left = 'Tdati', Right = 'Tdat', ID = ID_Tdat,...
-                    onMissingLeftHavingRight={ @(x)userProvidedNumber(o,x), },...
-                    onSame= @(x)onSameNumber(o)     );
-  
-
-
-%                 if ~isempty( o.Tdati.Subject(ID_Tdat) ) && 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                 %table_resolveConflict(o.Tdati(ID_Tdat,:),o.Tdat(ID_Tdat,:),'MV')
+%                 table_compareFun(Obj=o, Left = 'Tdati', Right = 'Tdat', ID = ID_Tdat,...
+%                     onMissingLeftHavingRight={ @(x)userProvidedNumber(o,x), @(x)unknownSubject(o,x) },...
+%                     onMissingRightHavingLeft={ @(x)usingScannedNumber(o,x), @(x)usingScannedSubject(o,x) },...
+%                     onMissingBoth={ @(x)unknownNumber(o,x), @(x)unknownSubject(o,x)},...
+%                     onSame={ @(x)matchesNumber(o,x), @(x)matchesSubject(o,x) },...
+%                     onDifferent={ @(x)mismatchNumber(o,x), @(x)mismatchSubject(o,x) }   );
 % 
-%                 end
-                % Number
+% 
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % questions
+                tblRes.UsingUsersNumber.missing.Number=0b10;
+                tblRes.MismatchNumber.different.Number=true;
+                tblRes.MatchesNumber.same.Number=true;
+                tblRes.CouldNotVerifyNumber.missing.Number=0b01;
+                tblRes.MissingNumber.missing.Number=0b11;
 
+                [tblTags,tblVals] = tablesCompare(o.Tdati(ID_Tdat,:),o.Tdat(ID_Tdat,:),tblRes);
 
-            
-
-                if different.Number
+                if tblTags.MismatchNumber
                             o.disp2('ErrorHuge');
-                            o.sprintf2('MismatchNumber', nv.Number);
+                            o.sprintf2('MismatchNumber');
                             return
                 end
-                if missing.Number==0b10
+                if tblTags.UsingUsersNumber
                             o.disp2('Warning');
-                            o.sprintf2('UsingNumberByUser', nv.Number);
+                            o.sprintf2('UsingUsersNumber', tblVals.Right.Number);
                 end
-                if same.Number
-                        o.sprintf2('MatchesNumber', nv.Number);
+                if tblTags.MatchesNumber
+                        o.sprintf2('MatchesNumber', tblVals.Number);
                 end
-                if missing.Number==0b01
+                if tblTags.CouldNotVerifyNumber
                          o.disp2('Warning');
-                         o.sprintf2('CouldNotVerifyNumber', NumberFoundByScanning );
+                         o.sprintf2('CouldNotVerifyNumber', tblVals.Left.Number);
                 end
-                if missing.Number==0b11
+                if tblTags.MissingNumber
                          o.disp2('ErrorHuge');
-                         o.sprintf2('UnknownNumber');
+                         o.sprintf2('MissingNumber');
                          return
                 end
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
                 SubjectFoundByScanning = char(o.Tdati.Subject(ID_Tdat));
                 if isempty(SubjectFoundByScanning)
                      o.disp2('ErrorHuge');
@@ -194,17 +200,31 @@ classdef MEcohort < Verboser
                 o.disp2('MissingArguments');
                 return
             end
-            % Functions overrridings
-            function userProvidedNumber(o,tableResults)
+
+            % Functions on how to respond to results of table comparision
+            function userProvidedNumber(o,tblResults)
                         o.disp2('Warning');
-                        o.sprintf2('UsingUsersNumber', tableResults.Number);
+                        o.sprintf2('UsingUsersNumber', tblResults.Number);
+            end
+            function usingScannedNumber(o,tblResults)
+                         o.disp2('Warning');
+                         o.sprintf2('CouldNotVerifyNumber', tblResults.Number);
 
             end
-            function onSameNumber(o,res)
-                        o.disp2('Warning');
-                        o.sprintf2('UsingUsersNumber', nv.Number);
-
+            function matchesNumber(o,tblResults)
+                        o.sprintf2('MatchesNumber', tblResults.Number);
             end
+            function mismatchNumber(o,tblResults)
+                            o.disp2('ErrorHuge');
+                            o.sprintf2('MismatchNumber', tblResults.Number);
+                            return
+            end
+            function unknownNumber(o,tblResults)
+                         o.disp2('ErrorHuge');
+                         o.sprintf2('UnknownNumber');
+                            return
+            end
+
 
         end
 
