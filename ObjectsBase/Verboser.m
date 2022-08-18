@@ -27,16 +27,20 @@ classdef Verboser < handle
             o.addMessage('Error','-------------- An error occured ----------------');
             o.addMessage('ErrorHuge','--------------!!!!!!! Beware, a HUGE ERROR occured! So Bad!!!!!!!----------------');
             % Arguments
-            o.addMessage('MissingArguments','Fucking arguments not provided.');
-            o.addMessage('Overspecified',"You provided more arguments than what was suggested. Isn't it a bit weird?" )
+            o.addMessage('MissingArguments','Fucking arguments not provided...');
+            o.addMessage('Overspecified',"You provided more arguments than what was assumed. Are you still in a driver's seat?" )
+           % o.addMessage('Mismatch','Mismatch in %s .');
+            %o.addMessage('Match','Match in %s .');
+            %o.addMessage('Missing','Missing %s ! Sorry, I could not determine the '); % optional suffixes
+
             % Computation
             o.addMessage('Progress','Current progress: %d out of %d  %s'); % what out of how much of what
-            o.addMessage('ProgressPercent','Current progress: %d %%. '); % what out of 100%
+            o.addMessage('ProgressPerc','Current progress: %d %%. '); % what out of 100%
             % Gratefull
             o.addMessage('ThankJane','Honestly, I appreciate your programming skills, Jane.'); 
             o.addMessage('ThankLenka','Honestly, I appreciate your programming skills, Lenka.'); 
             o.addMessage('ThankMe','Honestly, I appreciate your programming skills, Emsik.'); 
-            o.addMessage('ThankSomeone','Honestly, I appreciate your programming skills, %s.'); 
+            o.addMessage('ThankTo','Honestly, I appreciate your programming skills, %s.'); 
             
             
         end

@@ -1,4 +1,4 @@
-classdef MEcohort < Verboser
+classdef MEcohort < Verboser %& Tabler
     % MExperiment Summary of this class goes here
     %   Object holds information about a experimental subject
     
@@ -44,30 +44,25 @@ classdef MEcohort < Verboser
 
         function defineMessages(o)
             o.addMessage('ConstructorSuccess','Table for cohort initialized with %d rows.');
-            o.addMessage('MismatchSubject','The subject provided: %s does not match subject found.');
-            o.addMessage('MismatchNumber','The number provided: %d does not match the number found.');
-            o.addMessage('MatchesSubject','The subject provided: %s does match subject found.');
-            o.addMessage('MatchesNumber','The number provided: %d does match the number found.');
 
-            o.addMessage('UnknownSubject','Sorry, I could not determine the name of the subject....');
-            o.addMessage('UnknownNumber','Sorry, I could not determine the number of the subject....');
+            o.addMessage('CouldNotVerifySubject','Subject name was not provided, so I looked into a folder and put here what I found there: %s');
+            o.addMessage('CouldNotVerifyNumber','Subject Number was not provided, so I looked into a folder and put here what I found there: %d');
 
-            o.addMessage('CouldNotVerifySubject','Subject was not provided, so I looked into a folder and put here what I found there: %s');
+           
+            o.addMessage('MoreSubjectNumbers','I found more Numbers for the same Subject: %s');
+            o.addMessage('UsingUsersNumber','The Number of the subject not found. Using the number provided by the user: %d');
+
             o.addMessage('AddedSubjectTsub','Added subject to Tsub: %s');
-            o.addMessage('NotFoundSubjectNumber','The number for subject: %s was not found.');
-            o.addMessage('FoundSubjectNumber','The number for subject: %s is: %d');
-            o.addMessage('MismatchSubjectNumber','I found more numbers for the same subject: %s');
-            o.addMessage('UsingUsersNumber','Number of the subject not found. Using the number provided by the user: %d');
             o.addMessage('AddingData','Trying to add a data in the following path: %s    %s')
         end
 
         
         function addData(o,nv)
             % Adds a subject
-            arguments
+            arguments % TODO - add validation functions
                o = []
                nv.RootDir (1,:) char = []; 
-               nv.Format (1,:) char = []; 
+               nv.Format (1,:) {mustBeMember(nv.Format,{'VKJ','OSEL','putOtherFormatsHere'})} = 'VKJ'
                nv.Folder (1,:) char = [];
                nv.FullPath (1,:) char = [];
                nv.Subject (1,:) char = [];  %
@@ -97,139 +92,84 @@ classdef MEcohort < Verboser
                 ID_Tdat = table_getNextRow(Table = o.Tdat, Column = 'ID'); % we found next empty row
                 nv.ID=ID_Tdat; % add ID so that it will be filled together
                 o.Tdat = table_fillRowByFields(Table = o.Tdat, Row = nv.ID, DataStructure = nv);
-                 
-                o.VKJ_scanVKJDataByID(ID = ID_Tdat); % look to the folder and gather other info - and store it in Tdati
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%                 %table_resolveConflict(o.Tdati(ID_Tdat,:),o.Tdat(ID_Tdat,:),'MV')
-%                 table_compareFun(Obj=o, Left = 'Tdati', Right = 'Tdat', ID = ID_Tdat,...
-%                     onMissingLeftHavingRight={ @(x)userProvidedNumber(o,x), @(x)unknownSubject(o,x) },...
-%                     onMissingRightHavingLeft={ @(x)usingScannedNumber(o,x), @(x)usingScannedSubject(o,x) },...
-%                     onMissingBoth={ @(x)unknownNumber(o,x), @(x)unknownSubject(o,x)},...
-%                     onSame={ @(x)matchesNumber(o,x), @(x)matchesSubject(o,x) },...
-%                     onDifferent={ @(x)mismatchNumber(o,x), @(x)mismatchSubject(o,x) }   );
-% 
-% 
-% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-                % questions
-                tblRes.UsingUsersNumber.missing.Number=0b10;
-                tblRes.MismatchNumber.different.Number=true;
-                tblRes.MatchesNumber.same.Number=true;
-                tblRes.CouldNotVerifyNumber.missing.Number=0b01;
-                tblRes.MissingNumber.missing.Number=0b11;
-
-                [tblTags,tblVals] = tablesCompare(o.Tdati(ID_Tdat,:),o.Tdat(ID_Tdat,:),tblRes);
-
-                if tblTags.MismatchNumber
-                            o.disp2('ErrorHuge');
-                            o.sprintf2('MismatchNumber');
-                            return
-                end
-                if tblTags.UsingUsersNumber
-                            o.disp2('Warning');
-                            o.sprintf2('UsingUsersNumber', tblVals.Right.Number);
-                end
-                if tblTags.MatchesNumber
-                        o.sprintf2('MatchesNumber', tblVals.Number);
-                end
-                if tblTags.CouldNotVerifyNumber
-                         o.disp2('Warning');
-                         o.sprintf2('CouldNotVerifyNumber', tblVals.Left.Number);
-                end
-                if tblTags.MissingNumber
-                         o.disp2('ErrorHuge');
-                         o.sprintf2('MissingNumber');
-                         return
+                switch nv.Format
+                    case 'VKJ'
+                         o.VKJ_scanVKJDataByID(ID = ID_Tdat); % look to the folder and gather other info - and store it in Tdati
                 end
 
-
-
-
-
-                SubjectFoundByScanning = char(o.Tdati.Subject(ID_Tdat));
-                if isempty(SubjectFoundByScanning)
-                     o.disp2('ErrorHuge');
-                     o.sprintf2('UnknownSubject');
-                     return
-                end
-
-                NumberFoundByScanning = o.Tdat.Number(ID_Tdat); % it is permitted not to find a number, in this case, the user should provide
-                %b_addWhateverInTDatiAsSubject=false; 
-                
-
-
+                %%  Compare user input (Tdat) and informations gathered by scanning the folder (Tdati)
                 % Number
-                if ~isempty(nv.Number) % handle the Number provided by user 
-                    if ~isnan(NumberFoundByScanning)
-                        if nv.Number~=NumberFoundByScanning
+                number = missingEqual( o.Tdati.Number(ID_Tdat) , o.Tdat.Number(ID_Tdat) );
+                if number.different
                             o.disp2('ErrorHuge');
-                            o.sprintf2('MismatchNumber', nv.Number);
+                            o.disp2('Mismatch in Number');
                             return
-                        else
+                end      
+                if number.missing.left && number.having.right
                             o.disp2('Warning');
-                            o.sprintf2('UsingNumberProvided', nv.Number);
-                            Number = NumberFoundByScanning;
-                        end
-                    else
-                        o.sprintf2('MatchesNumber', nv.Number);
-                        Number = NumberFoundByScanning;
-                    end
-                else
-                    if ~isempty(NumberFoundByScanning) % using what we found
+                            o.sprintf2('UsingUsersNumber', o.Tdat.Number(ID_Tdat));
+                end
+                if number.equal
+                         o.disp2('Match in Number');
+                end
+                if number.having.left && number.missing.right
                          o.disp2('Warning');
-                         o.sprintf2('CouldNotVerifyNumber', NumberFoundByScanning );
-                         Number = NumberFoundByScanning;
-                    else
+                         o.sprintf2('CouldNotVerifyNumber', o.Tdati.Number(ID_Tdat));
+                         o.Tdat.Number(ID_Tdat) = o.Tdati.Number(ID_Tdat);
+                end
+                if number.missing.both
                          o.disp2('ErrorHuge');
-                         o.sprintf2('UnknownNumber');
+                         o.disp2('Missing Number, cant determine Number');
                          return
-                    end
                 end
 
+                %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+                % Subject
+                subject = missingEqual( o.Tdati.Subject(ID_Tdat) , o.Tdat.Subject(ID_Tdat) );
+                if subject.different
+                            o.disp2('ErrorHuge');
+                            o.disp2('Mismatch in Subject');
+                            return
+                end      
+                if subject.equal
+                        o.disp2('Match in Subject');
+                end
+                if subject.having.left && subject.missing.right
+                         o.disp2('Warning');
+                         o.sprintf2('CouldNotVerifySubject', o.Tdati.Subject(ID_Tdat));
+                         o.Tdat.Subject(ID_Tdat) = o.Tdati.Subject(ID_Tdat); 
+                end
+                if subject.missing.left
+                         o.disp2('ErrorHuge');
+                         o.disp2('Missing Subject, cant determine Subject');
+                         return
+                end
 
+                %% Delete redundant Subject and Number columns
+                o.Tdati.Subject = [];
+                o.Tdati.Number = [];
+                % Add Subject and some other values if provided to Tsub
+                %y = writeRow(Source = o.Tdat,Destination = o.Tsub,Key = 'Subject');
+                o.Tsub = fillRow(Sources = { o.Tdat(ID_Tdat,:) },Target=o.Tsub, UniqueKey='Subject'); % ,UniqueKey='Subject'
 
-                    % add Subject and some other values if provided
-                    valuesForTsub.Subject = SubjectFoundByScanning;
-                    valuesForTsub.Number = Number;
-                    valuesForTsub.Role = nv.Role;
-                    valuesForTsub.Treatment = nv.Treatment;
-                    o.Tsub = table_fillNewRowByFields(Table = o.Tsub, DataStructure = valuesForTsub);
-                    o.sprintf2('AddedSubjectTsub',SubjectFoundByScanning);
-                    %o.printvar(o.Tsub);
+                
+                valuesForTsub.Subject = SubjectFoundByScanning;
+                valuesForTsub.Number = Number;
+                valuesForTsub.Role = nv.Role;
+                valuesForTsub.Treatment = nv.Treatment;
+                o.Tsub = table_fillNewRowByFields(Table = o.Tsub, DataStructure = valuesForTsub);
+                o.sprintf2('AddedSubjectTsub',SubjectFoundByScanning);
+                %o.printvar(o.Tsub);
                
             else
                 o.disp2('MissingArguments');
+                o.disp2('Adding data aborted');
                 return
             end
-
-            % Functions on how to respond to results of table comparision
-            function userProvidedNumber(o,tblResults)
-                        o.disp2('Warning');
-                        o.sprintf2('UsingUsersNumber', tblResults.Number);
-            end
-            function usingScannedNumber(o,tblResults)
-                         o.disp2('Warning');
-                         o.sprintf2('CouldNotVerifyNumber', tblResults.Number);
-
-            end
-            function matchesNumber(o,tblResults)
-                        o.sprintf2('MatchesNumber', tblResults.Number);
-            end
-            function mismatchNumber(o,tblResults)
-                            o.disp2('ErrorHuge');
-                            o.sprintf2('MismatchNumber', tblResults.Number);
-                            return
-            end
-            function unknownNumber(o,tblResults)
-                         o.disp2('ErrorHuge');
-                         o.sprintf2('UnknownNumber');
-                            return
-            end
-
-
         end
 
         function VKJ_scanVKJDataByID(o,nv)
-        % VKJ_scanDataBy
+        % VKJ_scanVKJDataByID
         % is played on cohort object only for VKJ format data
         % get the fucking info about one subject from cohort
         % the function creates Tdati
@@ -255,30 +195,6 @@ classdef MEcohort < Verboser
             SubjectFoundByScanning = subjectsEegFilesC{1};
             o.Tdati.Subject(nv.ID) = SubjectFoundByScanning;
 
-            % dodelat
-%             % Subject
-%             if ~isempty(nv.Subject) % handle the Subject name provided by user
-%                 if ~strcmp(nv.Subject,SubjectFoundByScanning)
-%                     o.disp2('ErrorHuge');
-%                     o.sprintf2('MismatchSubject', nv.Subject);
-% 
-%                     %b_addWhateverInTDatiAsSubject=false;
-%                     return
-%                 else
-%                     o.sprintf2('MatchesSubject', nv.Subject);
-%                     %b_addWhateverInTDatiAsSubject=true;
-%                 end
-%             else
-%                 %b_addWhateverInTDatiAsSubject=true;
-%                  o.disp2('Warning');
-%                  o.sprintf2('CouldNotVerifySubject', SubjectFoundByScanning );
-%             end
-%             char(o.Tdati.Subject(ID_Tdat));
-%             if isempty(SubjectFoundByScanning)
-%                  o.disp2('ErrorHuge');
-%                  o.sprintf2('UnknownSubject');
-%                  return
-%             end
 
             startDns = [info(  onlyEegL   ).timeDn];
             startDns = sort(startDns);
@@ -300,12 +216,9 @@ classdef MEcohort < Verboser
                 if isequal(info(notNaNidx).number) % if all same
                     number = str2double(info(notNaNidx(1)).number);
                     o.Tdat.Number(nv.ID)  = number;
-                    o.sprintf2('FoundSubjectNumber',char(o.Tdat.Subject(nv.ID)), number);
                 else
-                    o.sprintf2('MismatchSubjectNumber',char(o.Tdat.Subject(nv.ID)));
+                    o.sprintf2('MoreSubjectNumbers',char(o.Tdat.Subject(nv.ID)));
                 end
-            else
-                o.sprintf2('NotFoundSubjectNumber',char(o.Tdat.Subject(nv.ID)));
             end
             
 
@@ -339,7 +252,7 @@ classdef MEcohort < Verboser
                             Trow.Role = Role;
                         end
                         y = Trow; 
-              end
+            end
  
         end
 
