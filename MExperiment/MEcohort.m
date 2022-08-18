@@ -150,7 +150,7 @@ classdef MEcohort < Verboser %& Tabler
                 o.Tdati.Number = [];
                 % Add Subject and some other values if provided to Tsub
                 %y = writeRow(Source = o.Tdat,Destination = o.Tsub,Key = 'Subject');
-                o.Tsub = fillRow(Sources = { o.Tdat(ID_Tdat,:) },Target=o.Tsub, UniqueKey='Subject'); % ,UniqueKey='Subject'
+                o.Tsub = fillRow(Sources = { o.Tdat(ID_Tdat,:) },Target=o.Tsub, KeyColumn='Subject'); % ,UniqueKey='Subject'
 
                 
                 valuesForTsub.Subject = SubjectFoundByScanning;
