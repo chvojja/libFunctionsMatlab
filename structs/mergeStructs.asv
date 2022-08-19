@@ -9,7 +9,7 @@ function y = mergeStructs(nv)
 
 arguments
    nv.Source (1,1) struct 
-   nv.Target (1,1) struct
+   nv.Destination (1,1) struct
    nv.Fields (1,:) cell = [];
    nv.Overwrite = true;
    nv.Verbose (1,1) logical = false;
@@ -21,26 +21,26 @@ end
 
 % Code
 Nf=numel(nv.Fields);
-if nv.Verbose, disp2(nv.Verbose, ['Im going to copy ' num2str(Nf) ' fields.' ]); end;
+if nv.Verbose, disp(['Im going to copy ' num2str(Nf) ' fields.' ]); end;
 
 for i = 1:Nf
     field_name = nv.Fields{i};
-    b_hasSameField = isfield(nv.Target,field_name);
+    b_hasSameField = isfield(nv.Destination,field_name);
     if b_hasSameField
         if nv.Overwrite 
             b_canWrite = true;
         else
             b_canWrite = false;
-            if nv.Verbose, disp2(nv.Verbose, ['A field ' field_name ' is already in the Target structure. I did not overwrite it.' ]); end;
+            if nv.Verbose, disp2(['A field ' field_name ' is already in the destination structure. I did not overwrite it.' ]); end;
         end
     else
         b_canWrite = true;
     end
 
     if b_canWrite
-        nv.Target.(field_name) = nv.Source.(field_name);
+        nv.Destination.(field_name) = nv.Source.(field_name);
     end
     
 end
-y = nv.Target;
+y = nv.Destination;
 end

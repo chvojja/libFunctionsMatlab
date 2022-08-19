@@ -22,9 +22,10 @@ classdef Verboser < handle
  
             % Put here some common messages
 
-            % Blocks and graphics    
-            o.addMessage('Block2Start',['XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\nXXXXXXXXXXXX                                                                          XXXXXXXXXXXX']);
-            o.addMessage('Block2End',  ['XXXXXXXXXXXX                                                                          XXXXXXXXXXXX\nXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX']);
+            % Blocks and graphics
+            o.addMessage('Block2Start',['======================================================================\n,...' ...
+                                        '============================================================= ']);
+
             % Errors and Warnings
             o.addMessage('Warning','-------------- A warning ----------------');
             o.addMessage('WarningBig','-------------- This is a BIG warning. ----------------');

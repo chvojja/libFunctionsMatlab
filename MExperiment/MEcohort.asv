@@ -282,8 +282,8 @@ classdef MEcohort < Verboser %& Tabler
                 
                 if ~isempty(nv.Treatment) % we have
                     o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'Treatment',nv.Treatment,nv.Role)); % assigned 
-          
-                    y = fillRow(Sources = structSubset(nv,{'Role','Treatment'}),KeyColumn = 'Treatment')
+                    s.Role = nv.Role;
+                    y = fillRow(Sources = structStrip(nv,,KeyColumn = 'Treatment')
                 end
                 if ~isempty(nv.RootDir) % we have 
                     o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'RootDir',nv.Treatment,nv.Role)); % assigned 
