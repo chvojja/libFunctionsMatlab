@@ -1,25 +1,25 @@
-function y = ismissingt(x)
+function y = ismissingt(T)
 %ISEMPTYT Determines missing values in table or cells of a table
 % Its specially designed to work with tables
 
-[r,c] = size(x);
+[r,c] = size(T);
 y = NaN(r,c);
 for col = 1:c
-    switch class(x(:,col))
+    switch class(T(:,col))
         case 'table'      % this is fucking !!!
-            switch class(x{:,col})
+            switch class(T{:,col})
                 case 'cell'
-                     y(:,col) = cellfun(@isempty,x{:,col});
+                     y(:,col) = cellfun(@isempty,T{:,col});
     
                 otherwise
-                     y(:,col) = ismissing(x{:,col});
+                     y(:,col) = ismissing(T{:,col});
             end
     
         case 'cell'
-            y(:,col) = cellfun(@isempty,x(:,col));
+            y(:,col) = cellfun(@isempty,T(:,col));
     
         otherwise
-            y(:,col) = ismissing(x);
+            y(:,col) = ismissing(T);
     
     end
 end

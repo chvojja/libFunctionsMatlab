@@ -1,4 +1,4 @@
-function gitUpload(nv)
+function gitup(nv)
 % upload all files in pwd ( path working directory)
 % remote repository has to be initialized (in github in browser)
 % and cloned using git clone https://github.com/libgit2/libgit2
