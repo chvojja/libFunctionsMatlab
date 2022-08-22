@@ -1,4 +1,4 @@
-function y = fillRows(nv)
+function y = fillNewRow(nv)
     %FILLROWS This function fill a row(s) of a table Target with named columns by anything that is in Sources cell array.
     % There can be a structure or a table in this cell array. Any value that is under a field that is also a column in Target is filled 
     % into that row(s), and every value of the same named column is filled in Target if source is a table row. More simply, three modes
@@ -23,26 +23,8 @@ function y = fillRows(nv)
     end
     
     %% Prepare data
-    totalDataStruct = struct;
-    if iscell(nv.Sources)
-        Ns = numel(nv.Sources);
-            for ns = 1:Ns
-                src = nv.Sources{ns};
-                className = class(src);
-                switch  className  % convert if necessary
-                    case 'table'
-                        src = table2struct(src);
-                    case 'struct'
-
-                end
-                totalDataStruct = mergeStructs(Source = src,Destination = totalDataStruct, OverwriteExisting = false);
-            end    
-    else
-        if isstruct(nv.Sources)
-            totalDataStruct = nv.Sources;
-        end
-    end
-
+       totalDataStruct = glueFields(nv.Sources);   
+       
     %% Now in totalDataStruct are all the source data
     % Chceck if corresponding row to source data via KeyColumn exists 
     % Determine the row where to write

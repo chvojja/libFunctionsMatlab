@@ -1,17 +1,22 @@
 function rowNumber = nextRow(nv)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%ROWNUMBER Finds next free row of a table 
 arguments 
     nv.Table table
     nv.KeyColumn = [];
 end
 
-if isempty(nv.KeyColumn)
-    missingL = ismissingt(nv.Table);
+rowNumber = size(nv.Table,1)+1;
 
-
-else
+if isempty(nv.KeyColumn) % We search for missing values in all columns
+    missingL = ismissingt(nv.Table); 
+    rowsAllFree = find(~any(~missingL'));
+    if ~isempty(rowsAllFre)
+        rowNumber = rowsAllFree(1);
+    end
+else % If KeyColumn provided, we know where to search
     isu = find(ismissing(nv.Table.(nv.KeyColumn))); 
-    rowNumber = isu(1);
+    if ~isempty(isu)
+        rowNumber = isu(1);
+    end
 end
 

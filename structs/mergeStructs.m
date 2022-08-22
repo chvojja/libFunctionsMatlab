@@ -1,4 +1,5 @@
 function y = mergeStructs(nv)
+% mergeStructs Adds fields from SourceStruct among the fields of the TargetStruct
 % nv is property value pairs
 % % Example use
 % struct1.a=1;
@@ -8,15 +9,15 @@ function y = mergeStructs(nv)
 % struct2 = copy_struct_fields(someSettingsStructure) % second possible call
 
 arguments
-   nv.Source (1,1) struct 
-   nv.Target (1,1) struct
+   nv.SourceStruct (1,1) struct 
+   nv.TargetStruct (1,1) struct
    nv.Fields (1,:) cell = [];
-   nv.Overwrite = true;
+   nv.OverwriteSameFields = false;
    nv.Verbose (1,1) logical = false;
 end
 
 if isempty(nv.Fields) % copy all by default
-    nv.Fields = fieldnames(nv.Source);
+    nv.Fields = fieldnames(nv.SourceStruct);
 end
 
 % Code
@@ -25,9 +26,9 @@ if nv.Verbose, disp2(nv.Verbose, ['Im going to copy ' num2str(Nf) ' fields.' ]);
 
 for i = 1:Nf
     field_name = nv.Fields{i};
-    b_hasSameField = isfield(nv.Target,field_name);
+    b_hasSameField = isfield(nv.TargetStruct,field_name);
     if b_hasSameField
-        if nv.Overwrite 
+        if nv.OverwriteSameFields 
             b_canWrite = true;
         else
             b_canWrite = false;
@@ -38,9 +39,9 @@ for i = 1:Nf
     end
 
     if b_canWrite
-        nv.Target.(field_name) = nv.Source.(field_name);
+        nv.TargetStruct.(field_name) = nv.SourceStruct.(field_name);
     end
     
 end
-y = nv.Target;
+y = nv.TargetStruct;
 end
