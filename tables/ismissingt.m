@@ -5,42 +5,71 @@ function y = ismissingt(T)
 
 [r,c] = size(T);
 y = NaN(r,c);
+
+% class_T = class(T);
+% 
+% switch class_T
+% 
+%     case 'table'
+% 
+%             for col = 1:c
+%                 switch class(T{:,col})
+% 
+%                     case 'cell'
+%                         y(:,col) = cellfun(@isempty,T{:,col});
+%             
+%                     case 'logical'
+%                         y(:,col) = ones(r,1); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% !!!!!!!!!!!!!!!!!!!!!!!
+%                 
+%                     otherwise
+%                         y(:,col) = ismissing(T{:,col});
+%                 end
+%             end
+% 
+%     otherwise % or its just a single element
+% 
+%             for col = 1:c
+%                 switch class(T{:,col})
+% 
+%                     case 'cell'
+%                         y(:,col) = cellfun(@isempty,T{:,col});
+%             
+%                     case 'logical'
+%                         y(:,col) = ones(r,1); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% !!!!!!!!!!!!!!!!!!!!!!!
+%                 
+%                     otherwise
+%                         y(:,col) = ismissing(T{:,col});
+%                 end
+%             end
+% end
+% 
+% end
+
+
 for col = 1:c
-    switch class(T{:,col})
+    switch class(T(:,col))
+        case 'table'      % this is fucking !!!
+            switch class(T{:,col})
+                case 'cell'
+                     y(:,col) = cellfun(@isempty,T{:,col});
+                case 'logical'
+                        y(:,col) = ones(r,1); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% !!!!!!!!!!!!!!!!!!!!!!!
+                otherwise
+                     y(:,col) = ismissing(T{:,col});
+            end
     
         case 'cell'
-            y(:,col) = cellfun(@isempty,T{:,col});
-
+            y(:,col) = cellfun(@isempty,T(:,col));
+    
         case 'logical'
-            y(:,col) = ones(r,1);
+            y(:,col) = ones(r,1); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% !!!!!!!!!!!!!!!!!!!!!!!
     
         otherwise
-            y(:,col) = ismissing(T{:,col});
+            y(:,col) = ismissing(T(:,col));
     
     end
-
-% 
-%     switch class(T{:,col})
-%         case 'table'      % this is fucking !!!
-%             switch class(T{:,col})
-%                 case 'cell'
-%                      y(:,col) = cellfun(@isempty,T{:,col});
-%     
-%                 otherwise
-%                      y(:,col) = ismissing(T{:,col});
-%             end
-%     
-%         case 'cell'
-%             y(:,col) = cellfun(@isempty,T(:,col));
-% 
-%         case 'logical'
-%             y(:,col) = ones(r,1);
-%     
-%         otherwise
-%             y(:,col) = ismissing(T(:,col));
-%     
-%     end
 end
+
 
 
 
