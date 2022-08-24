@@ -19,14 +19,14 @@ classdef VKJiterateSubject < handle
  %      function o = iterateFolderClass()
       %     o.verboseOn=true;
          % o = feval(varargin{1},o);
-         % tohle jsou cesty k myšim. Složka rootDir má vždycky stejnou danou strukturu.
+         % tohle jsou cesty k myÅ¡im. SloÅ¾ka rootDir mÃ¡ vÅ¾dycky stejnou danou strukturu.
 %                o.foldersRootPathsCell{1} = 'J:\WKJ complete first\WKJ_DATA'; % cesta
 %                 o.foldersNamesCell{1} = {'jc20181211_1',...
 %                                    'jc20181211_2',...
-%                                     }; % nazev myši
+%                                     }; % nazev myÅ¡i
 %               o.foldersRootPathsCell{2} = 'F:\WKJ_MTORMUT 6_1_2020'; % cesta
 %               o.foldersNamesCell{2} = {'jc20190327',...
-%                                    }; % nazev myši
+%                                    }; % nazev myÅ¡i
 
    %    end
    

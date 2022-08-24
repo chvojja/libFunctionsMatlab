@@ -21,7 +21,7 @@ function totalDataStruct = fields2struct(nv)
                     case 'struct'
 
                 end
-                totalDataStruct = mergeStructs(Source = src,Target = totalDataStruct, OverwriteSameFields = nv.OverwriteSameFields);
+                totalDataStruct = structMerge(Source = src,Target = totalDataStruct, OverwriteSameFields = nv.OverwriteSameFields);
                 % if nv.OverwriteSameFields true, this will update the first structure with the next and the next and the next one....
             end    
     else

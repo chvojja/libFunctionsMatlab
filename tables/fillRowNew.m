@@ -1,4 +1,4 @@
-function y = fillNewRow(nv)
+function y = fillRowNew(nv)
     %FILLROWS This function fill a row(s) of a table Target with named columns by anything that is in Sources cell array.
     % There can be a structure or a table in this cell array. Any value that is under a field that is also a column in Target is filled 
     % into that row(s), and every value of the same named column is filled in Target if source is a table row. More simply, three modes

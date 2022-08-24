@@ -25,7 +25,7 @@ function y = fillRowsByKeyOrAddNew(nv)
     % try by key
     [y,b_keyRowsFound] = fillRowsByKey(Source = nv.Source, Sources = nv.Sources,Target=nv.Target,Key=nv.Key,Overwriting=nv.Overwriting,Verbose=nv.Verbose);
     if ~b_keyRowsFound % if filling by Key failed, then add as new:
-       y = fillNewRow(Source = nv.Source, Sources = nv.Sources,Target=nv.Target,Overwriting=nv.Overwriting,Verbose=nv.Verbose); 
+       y = fillRowNew(Source = nv.Source, Sources = nv.Sources,Target=nv.Target,Overwriting=nv.Overwriting,Verbose=nv.Verbose); 
     end
 
 

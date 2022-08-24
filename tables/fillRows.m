@@ -7,7 +7,7 @@ arguments
     nv.Target;
     nv.Rows;
     nv.Overwriting = false;
-    nv.Verbose = false;
+    nv.Verbose = true;
 end
 
      %% Prepare data
@@ -36,7 +36,9 @@ end
 
             
             for kr = 1: numel(nv.Rows)
+                 b_writeNoCell = false;
                  b_missing = ismissingt(nv.Target.(fieldName)(nv.Rows(kr)));
+                 b_missing(isnan(b_missing))=true; % dont care about logicals that cant be determined if missing or not
                  switch class(nv.Target.(fieldName)(nv.Rows(kr)))
                      case 'cell'
                          b_equal =  isequaln(  nv.Target.(fieldName){nv.Rows(kr)}  ,  totalDataStruct.(fieldName)    ); % compare values 
@@ -50,11 +52,20 @@ end
                      otherwise
                          b_equal =  isequaln(  nv.Target.(fieldName)(nv.Rows(kr))  ,  totalDataStruct.(fieldName)    ); % compare values 
                          if (~b_equal && b_missing)
-                             nv.Target.(fieldName)(nv.Rows(kr)) =  totalDataStruct.(fieldName)   ;
+                             b_writeNoCell = true   ;
                          else
                              if (nv.Overwriting )
-                                 nv.Target.(fieldName)(nv.Rows(kr)) =  totalDataStruct.(fieldName)   ;
+                                 b_writeNoCell = true   ;
                              end
+                         end
+                         
+                         if b_writeNoCell
+                            if ~isempty(totalDataStruct.(fieldName)) 
+                                writeVal = totalDataStruct.(fieldName);
+                            else
+                                writeVal = NaN;
+                            end
+                            nv.Target.(fieldName)(nv.Rows(kr)) =  writeVal   ; 
                          end
 
                  end

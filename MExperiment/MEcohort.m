@@ -7,13 +7,15 @@ classdef MEcohort < Verboser %& Tabler
         Tsub; % table of the subjects
         Tdat; % table of the data to each mice
         Tdati; % table of the data with info about data dir
+
+        TVKJ;
 %         Tvkj; % VKJ related informations
 %         Teeg; % eeg related informations
 
 %         N_subj
 %         N_subjInGroupCTRL
 %         N_subjInGroupTREAT
-        N_Trows = 100; % default number of rows
+        N_Trows = 5; % default number of rows
 
      
 
@@ -33,11 +35,14 @@ classdef MEcohort < Verboser %& Tabler
             o = o@Verboser(nv_verbC{:});
             defineMessages(o); 
 
-            o.Tsub = table_createEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','Treatment','cat','Role','cat'); % one row per subject    
-            o.Tdat = table_createEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical'); % one row per data folder
-            o.Tdati = table_createEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical'); % one row per data folder
-%             o.T.eeg = table_createEmpty(o.N_Trows,'Fs','double','Channels','cell','CountCh','double');
+            o.Tsub = tableNewEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','Treatment','cat','Role','cat'); % one row per subject    
+            o.Tdat = tableNewEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical'); % one row per data folder
+            o.Tdati = tableNewEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical'); % one row per data folder
+%             o.T.eeg = tableNewEmpty(o.N_Trows,'Fs','double','Channels','cell','CountCh','double');
+            o.TVKJ = tableNewEmpty(10,'ID','int64','ID_Tdat','int64','Subject','cat','Fs','double','Start','char','End','double','Channels','double','ChNames','cell','FilePath','char','HasLbl','double','FilePathLbl','char'); % one row per file
+
             
+
             o.sprintf2('ConstructorSuccess', o.N_Trows);
 
         end
@@ -54,6 +59,13 @@ classdef MEcohort < Verboser %& Tabler
 
             o.addMessage('AddedSubjectTsub','Added subject to Tsub: %s');
             o.addMessage('AddingData','Trying to add a data in the following path: %s    %s')
+        end
+
+        function save(o)
+
+            %save([o.name '__COHORT__' date],o)
+            save('cohort','o')
+
         end
 
         
@@ -90,9 +102,10 @@ classdef MEcohort < Verboser %& Tabler
                 % go go go
                 o.sprintf2('Block2Start')
                 o.sprintf2('AddingData',nv.RootDir,nv.Folder);
-                ID_Tdat = table_getNextRow(Table = o.Tdat, Column = 'ID'); % we found next empty row
+                ID_Tdat = nextRow(Table = o.Tdat,Key = 'ID'); % we found next empty row
                 nv.ID=ID_Tdat; % add ID so that it will be filled together
-                o.Tdat = table_fillRowByFields(Table = o.Tdat, Row = nv.ID, DataStructure = nv);
+                o.Tdat = fillRowNew(Sources = nv, Target = o.Tdat);
+                %o.Tdat = table_fillRowByFields(Table = o.Tdat, Row = nv.ID, DataStructure = nv);
                 switch nv.Format
                     case 'VKJ'
                          o.VKJ_scanVKJDataByID(ID = ID_Tdat); % look to the folder and gather other info - and store it in Tdati
@@ -153,7 +166,7 @@ classdef MEcohort < Verboser %& Tabler
 
                 %% Add Subject and some other values if provided to Tsub
                 %y = writeRow(Source = o.Tdat,Destination = o.Tsub,Key = 'Subject');
-                o.Tsub = fillRow(Sources = { o.Tdat(ID_Tdat,:) },Target=o.Tsub, KeyColumn='Subject', Verbose = false); % ,UniqueKey='Subject'
+                o.Tsub = fillRowsByKeyOrAddNew(Sources = { o.Tdat(ID_Tdat,:) },Target=o.Tsub, Key='Subject'); 
 
 
 
@@ -188,6 +201,8 @@ classdef MEcohort < Verboser %& Tabler
         
         dd=dirfile([fullfile(char(o.Tdat.RootDir(nv.ID)),char(o.Tdat.Folder(nv.ID))) '\**\*.mat' ]);
         Nfiles  = numel(dd);
+        
+
         info(Nfiles) = struct('subject',[],'number',[], 'timeDn',[], 'station',[],'type',[]);
             % Get info from file names
             for i = 1:Nfiles
@@ -214,9 +229,6 @@ classdef MEcohort < Verboser %& Tabler
             o.Tdati.MinsPerFile(nv.ID) = mode(diff(startDns)) * 24*3600; 
             o.Tdati.TimeRawDays(nv.ID) = mode(diff(startDns)) * o.Tdati.Files(nv.ID);
 
-            % update Tdat
-            %o.Tdat.ID(nv.ID)  = nv.ID;
-            %o.Tdat.Subject(nv.ID) = o.Tdati.Subject(nv.ID);
 
             notNaNidx=~isnan([info(  onlyEegL   ).number]);
             if ~isempty([info(notNaNidx).number])  % after removal of NaNs, If I found numbers
@@ -229,8 +241,41 @@ classdef MEcohort < Verboser %& Tabler
                 end
             end
             
+            
 
         end
+
+
+%         function assignRoleBy(o,nv)
+%             % 
+%             arguments
+%                o = []
+%                nv.Treatment (1,:) char = [];
+%                nv.RootDir (1,:) char = [];
+%                nv.Role (1,:) char = [];
+%             end
+%       
+%             if ~isempty(nv.Role) 
+%                 if ~isempty(nv.Treatment) &&  ~isempty(nv.RootDir)
+%                     disp2('Overspecified');
+%                     return
+%                 end
+%                 
+%                 if ~isempty(nv.Treatment) % we have
+%                     o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'Treatment',nv.Treatment,nv.Role)); % assigned 
+%                 end
+%                 if ~isempty(nv.RootDir) % we have 
+%                     o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'RootDir',nv.Treatment,nv.Role)); % assigned 
+%                 end
+%             end
+%             function y = assignRoleByData_tableRow(Trow,Column,ColumnAskValue,Role)
+%                         if strcmp(char(Trow.(Column)),ColumnAskValue)
+%                             Trow.Role = Role;
+%                         end
+%                         y = Trow; 
+%             end
+%  
+%         end
 
 
         function assignRoleBy(o,nv)
@@ -239,7 +284,7 @@ classdef MEcohort < Verboser %& Tabler
                o = []
                nv.Treatment (1,:) char = [];
                nv.RootDir (1,:) char = [];
-               nv.Role (1,:) char = [];
+               nv.Role (1,:) char;
             end
       
             if ~isempty(nv.Role) 
@@ -249,41 +294,8 @@ classdef MEcohort < Verboser %& Tabler
                 end
                 
                 if ~isempty(nv.Treatment) % we have
-                    o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'Treatment',nv.Treatment,nv.Role)); % assigned 
-                end
-                if ~isempty(nv.RootDir) % we have 
-                    o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'RootDir',nv.Treatment,nv.Role)); % assigned 
-                end
-            end
-            function y = assignRoleByData_tableRow(Trow,Column,ColumnAskValue,Role)
-                        if strcmp(char(Trow.(Column)),ColumnAskValue)
-                            Trow.Role = Role;
-                        end
-                        y = Trow; 
-            end
- 
-        end
-
-
-        function assignRoleBy2(o,nv)
-            % 
-            arguments
-               o = []
-               nv.Treatment (1,:) char = [];
-               nv.RootDir (1,:) char = [];
-               nv.Role (1,:) char = [];
-            end
-      
-            if ~isempty(nv.Role) 
-                if ~isempty(nv.Treatment) &&  ~isempty(nv.RootDir)
-                    disp2('Overspecified');
-                    return
-                end
-                
-                if ~isempty(nv.Treatment) % we have
-                    o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'Treatment',nv.Treatment,nv.Role)); % assigned 
+                    o.Tsub = fillRowsByKey(Source = {'Treatment',nv.Treatment,'Role',nv.Role}, Key = 'Treatment',Target = o.Tsub);
           
-                    y = fillRow(Sources = structSubset(nv,{'Role','Treatment'}),KeyColumn = 'Treatment')
                 end
                 if ~isempty(nv.RootDir) % we have 
                     o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'RootDir',nv.Treatment,nv.Role)); % assigned 

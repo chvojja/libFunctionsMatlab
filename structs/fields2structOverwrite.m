@@ -5,6 +5,6 @@ function totalDataStruct = fields2structOverwrite(nv)
         nv.Verbose = false;
     end
 
-    totalDataStruct = fields2structOverwrite(Sources = nv.Sources, Verbose = nv.Verbose, OverwriteSameFields = true);
+    totalDataStruct = fields2struct(Sources = nv.Sources, Verbose = nv.Verbose, OverwriteSameFields = true);
 end
 

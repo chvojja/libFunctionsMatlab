@@ -11,6 +11,7 @@ rowNumber = r+1;
 
 if isempty(nv.KeyColumn) % We search for missing values in all columns
     missingL = ismissingt(nv.Table); 
+    missingL(isnan(missingL))=1;
     rowsAllFree = find(~any(~missingL'));
     if ~isempty(rowsAllFree)
         rowNumber = rowsAllFree(1);
