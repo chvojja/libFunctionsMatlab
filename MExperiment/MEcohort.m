@@ -8,14 +8,16 @@ classdef MEcohort < Verboser %& Tabler
         Tdat; % table of the data to each mice
         Tdati; % table of the data with info about data dir
 
-        TVKJ;
+        VKJeeg;
+        VKJlbl;
+
 %         Tvkj; % VKJ related informations
 %         Teeg; % eeg related informations
 
 %         N_subj
 %         N_subjInGroupCTRL
 %         N_subjInGroupTREAT
-        N_Trows = 5; % default number of rows
+        %N_Trows = 5; % default number of rows
 
      
 
@@ -35,11 +37,12 @@ classdef MEcohort < Verboser %& Tabler
             o = o@Verboser(nv_verbC{:});
             defineMessages(o); 
 
-            o.Tsub = tableNewEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','Treatment','cat','Role','cat'); % one row per subject    
-            o.Tdat = tableNewEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical'); % one row per data folder
-            o.Tdati = tableNewEmpty(o.N_Trows,'ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical'); % one row per data folder
+            o.Tsub = tableNewEmpty('ID','double','Subject','cat','Number','double','Treatment','cat','Role','cat', Nrows = 1); % one row per subject    
+            o.Tdat = tableNewEmpty('ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical', Nrows = 1); % one row per data folder
+            o.Tdati = tableNewEmpty('ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical', Nrows = 1); % one row per data folder
 %             o.T.eeg = tableNewEmpty(o.N_Trows,'Fs','double','Channels','cell','CountCh','double');
-            o.TVKJ = tableNewEmpty(10,'ID','int64','ID_Tdat','int64','Subject','cat','Fs','double','Start','char','End','double','Channels','double','ChNames','cell','FilePath','char','HasLbl','double','FilePathLbl','char'); % one row per file
+            o.VKJeeg = tableNewEmpty('ID','int64','ID_Tdat','int64','Subject','cat','Start','char','End','char','Channels','double','ChNames','cell','FilePath','char','SubFold1','cat','SubFold2','cat', Nrows = 1); %'HasLbl','double','FilePathLbl','char'); % one row per file
+            o.VKJlbl = tableNewEmpty('ID','int64','ID_Tdat','int64','ID_VKJeeg','int64','Subject','cat','FilePath','char','SubFold1','cat','SubFold2','cat', Nrows = 1); %'HasLbl','double','FilePathLbl','char'); % one row per file
 
             
 
