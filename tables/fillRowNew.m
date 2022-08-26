@@ -1,4 +1,4 @@
-function y = fillRowNew(nv)
+function [Table, rT] = fillRowNew(nv)
     %FILLROWS This function fill a row(s) of a table Target with named columns by anything that is in Sources cell array.
     % There can be a structure or a table in this cell array. Any value that is under a field that is also a column in Target is filled 
     % into that row(s), and every value of the same named column is filled in Target if source is a table row. More simply, three modes
@@ -13,6 +13,8 @@ function y = fillRowNew(nv)
     % appended. If its not found, then a new row is created based on KeyColumn column.
     % If KeyColumn is not specified than, we will look to the first column
 
+    % T ... updated Table
+    % rT .. result structure
     arguments     
         nv.Sources = []; % struct or table row or cell array of either struct or table row 
         nv.Source = []; % even element cell array of Key-Value pairs
@@ -25,12 +27,12 @@ function y = fillRowNew(nv)
 %        totalDataStruct = fields2struct(nv.Sources);   
 
     %% Get row
-    [rowNumber, nv.Target] = nextRow(Table = nv.Target);
+    [Table, rT] = rowInit(nv.Target); 
 
     % We have rowNumbers
     
     % Updateing Target from Sources
-    y = fillRows(Source = nv.Source, Sources = nv.Sources,Target=nv.Target,Rows=rowNumber,Overwriting=nv.Overwriting,Verbose=nv.Verbose);
+    Table = fillRows(Source = nv.Source, Sources = nv.Sources,Target=Table,Rows=rT.row,Overwriting=nv.Overwriting,Verbose=nv.Verbose);
             
      
 

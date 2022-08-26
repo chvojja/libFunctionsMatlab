@@ -75,11 +75,8 @@ end
                          end
 
                  end
-                 if b_writeID 
-                     [b_hasID,ID_name] = hasID(nv.Target) ;
-                    if b_hasID && isnan(nv.Target.(ID_name)(nv.Rows(kr))) % prevent overwriting ID
-                        nv.Target.(ID_name)(nv.Rows(kr)) = newID(nv.Target);
-                    end
+                 if b_writeID && hasID(nv.Target)
+                    nv.Target.ID(nv.Rows(kr)) = getID(nv.Target);
                  end
 
                 

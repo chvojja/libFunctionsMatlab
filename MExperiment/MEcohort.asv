@@ -38,20 +38,20 @@ classdef MEcohort < Verboser %& Tabler
             defineMessages(o); 
 
             o.Tsub = tableNewEmpty('ID','double','Subject','cat','Number','double','Treatment','cat','Role','cat', Nrows = 1); % one row per subject    
-            o.Tdat = tableNewEmpty('ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical', Nrows = 1); % one row per data folder
-            o.Tdati = tableNewEmpty('ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical', Nrows = 1); % one row per data folder
+            o.Tdat = tableNewEmpty('ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical', Nrows = 10); % one row per data folder
+            o.Tdati = tableNewEmpty('ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical', Nrows = 10); % one row per data folder
 %             o.T.eeg = tableNewEmpty(o.N_Trows,'Fs','double','Channels','cell','CountCh','double');
-            o.VKJeeg = tableNewEmpty('ID','int64','ID_Tdat','int64','Subject','cat','Start','char','End','char','Channels','double','ChNames','cell','FilePath','char','SubFold1','cat','SubFold2','cat', Nrows = 1); %'HasLbl','double','FilePathLbl','char'); % one row per file
-            o.VKJlbl = tableNewEmpty('ID','int64','ID_Tdat','int64','ID_VKJeeg','int64','Subject','cat','FilePath','char','SubFold1','cat','SubFold2','cat', Nrows = 1); %'HasLbl','double','FilePathLbl','char'); % one row per file
+            o.VKJeeg = tableNewEmpty('ID','uint32','Tdat_ID','uint32','Subject','cat','Start','char','End','char','Channels','double','ChNames','cell','FilePath','char','SubFold1','cat','SubFold2','cat','Dev','cat', Nrows = 10); %'HasLbl','double','FilePathLbl','char'); % one row per file
+            o.VKJlbl = tableNewEmpty('ID','uint32','Tdat_ID','uint32','VKJeeg_ID','uint32','Subject','cat','FilePath','char','SubFold1','cat','SubFold2','cat', Nrows = 1); %'HasLbl','double','FilePathLbl','char'); % one row per file
 
             
 
-            o.sprintf2('ConstructorSuccess', o.N_Trows);
+            
 
         end
 
         function defineMessages(o)
-            o.addMessage('ConstructorSuccess','Table for cohort initialized with %d rows.');
+           
 
             o.addMessage('CouldNotVerifySubject','Subject name was not provided, so I looked into a folder and put here what I found there: %s');
             o.addMessage('CouldNotVerifyNumber','Subject Number was not provided, so I looked into a folder and put here what I found there: %d');
@@ -105,18 +105,19 @@ classdef MEcohort < Verboser %& Tabler
                 % go go go
                 o.sprintf2('Block2Start')
                 o.sprintf2('AddingData',nv.RootDir,nv.Folder);
-                ID_Tdat = nextRow(Table = o.Tdat,Key = 'ID'); % we found next empty row
-                nv.ID=ID_Tdat; % add ID so that it will be filled together
-                o.Tdat = fillRowNew(Sources = nv, Target = o.Tdat);
+                %rTdat = nextRow(Table = o.Tdat); % we found next empty row
+                %nv.ID=rTdat; % add ID so that it will be filled together
+                %[o.Tdat, rTdat] = fillRowNew(Sources = {nv, struct('ID',rTdat.id)} , Target = o.Tdat);
+                [o.Tdat, rTdat] = fillRowNew(Sources = nv , Target = o.Tdat); % ID will be filled automatically
                 %o.Tdat = table_fillRowByFields(Table = o.Tdat, Row = nv.ID, DataStructure = nv);
                 switch nv.Format
                     case 'VKJ'
-                         o.VKJ_scanVKJDataByID(ID = ID_Tdat); % look to the folder and gather other info - and store it in Tdati
+                         o.VKJ_scanVKJDataByID(ID = rTdat.id); % look to the folder and gather other info - and store it in Tdati
                 end
 
                 %%  Compare user input (Tdat) and informations gathered by scanning the folder (Tdati)
-                % Number
-                number = missingEqual( o.Tdati.Number(ID_Tdat) , o.Tdat.Number(ID_Tdat) );
+                % Number  o.Tdat.ID==nv.ID
+                number = missingEqual( o.Tdati.Number(rTdat.row) , o.Tdat.Number(rTdat.row) );
                 if number.different
                             o.disp2('ErrorHuge');
                             o.disp2('Mismatch in Number');
@@ -125,15 +126,15 @@ classdef MEcohort < Verboser %& Tabler
                 end      
                 if number.missing.left && number.having.right
                             o.disp2('Warning');
-                            o.sprintf2('UsingUsersNumber', o.Tdat.Number(ID_Tdat));
+                            o.sprintf2('UsingUsersNumber', o.Tdat.Number(rTdat.row));
                 end
                 if number.equal
                          o.disp2('Match in Number');
                 end
                 if number.having.left && number.missing.right
                          o.disp2('Warning');
-                         o.sprintf2('CouldNotVerifyNumber', o.Tdati.Number(ID_Tdat));
-                         o.Tdat.Number(ID_Tdat) = o.Tdati.Number(ID_Tdat);
+                         o.sprintf2('CouldNotVerifyNumber', o.Tdati.Number(rTdat.row));
+                         o.Tdat.Number(rTdat.row) = o.Tdati.Number(rTdat.row);
                 end
                 if number.missing.both
                          o.disp2('ErrorHuge');
@@ -144,7 +145,7 @@ classdef MEcohort < Verboser %& Tabler
 
                 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
                 % Subject
-                subject = missingEqual( o.Tdati.Subject(ID_Tdat) , o.Tdat.Subject(ID_Tdat) );
+                subject = missingEqual( o.Tdati.Subject(rTdat.row) , o.Tdat.Subject(rTdat.row) );
                 if subject.different
                             o.disp2('ErrorHuge');
                             o.disp2('Mismatch in Subject');
@@ -156,8 +157,8 @@ classdef MEcohort < Verboser %& Tabler
                 end
                 if subject.having.left && subject.missing.right
                          o.disp2('Warning');
-                         o.sprintf2('CouldNotVerifySubject', o.Tdati.Subject(ID_Tdat));
-                         o.Tdat.Subject(ID_Tdat) = o.Tdati.Subject(ID_Tdat); 
+                         o.sprintf2('CouldNotVerifySubject', o.Tdati.Subject(rTdat.row));
+                         o.Tdat.Subject(rTdat.row) = o.Tdati.Subject(rTdat.row); 
                 end
                 if subject.missing.left
                          o.disp2('ErrorHuge');
@@ -169,11 +170,9 @@ classdef MEcohort < Verboser %& Tabler
 
                 %% Add Subject and some other values if provided to Tsub
                 %y = writeRow(Source = o.Tdat,Destination = o.Tsub,Key = 'Subject');
-                o.Tsub = fillRowsByKeyOrAddNew(Sources = { o.Tdat(ID_Tdat,:) },Target=o.Tsub, Key='Subject'); 
+                o.Tsub = fillRowsByKeyOrAddNew(Sources = { o.Tdat(rTdat.row,:) },Target=o.Tsub, Key='Subject'); 
 
-
-
-                o.sprintf2('AddedSubjectTsub',char(o.Tdat.Subject(ID_Tdat)));
+                o.sprintf2('AddedSubjectTsub',char(o.Tdat.Subject(rTdat.row)));
                 %o.printvar(o.Tsub);
                
             else
@@ -199,86 +198,65 @@ classdef MEcohort < Verboser %& Tabler
         % the function creates Tdati
         arguments
             o = []  % COHORT OBJECT o.Tdat table: RootDir, Folder and ID is expected here
-            nv.ID double % this is Tdat ID
+            nv.Tdat_ID double % this is Tdat row
         end
+
+        
+        [o.Tdat, rTdat] = rowInit(o.Tdat);
         
         dd=dirfile([fullfile(char(o.Tdat.RootDir(nv.ID)),char(o.Tdat.Folder(nv.ID))) '\**\*.mat' ]);
         Nfiles  = numel(dd);
         
 
-        info(Nfiles) = struct('subject',[],'number',[], 'timeDn',[], 'station',[],'type',[]);
+        %info(Nfiles) = struct('Subject',[],'Number',[], 'timeDn',[], 'station',[],'type',[]);
             % Get info from file names
             for i = 1:Nfiles
-                [info(i).subject, info(i).number, info(i).timeDn, info(i).station, info(i).type] = VKJ_parseFileName(dd(i).name);          
+                [info(i).Subject, info(i).Number, info(i).Start, info(i).Dev, info(i).Type ] = VKJ_parseFileName(dd(i).name);   
+
+                info(i).FilePath = [dd(i).folder filesep dd(i).name];
+                sf = subFolders( FilePath = info(i).FilePath,  Offset = [fullfile(char(o.Tdat.RootDir(nv.ID)),char(o.Tdat.Folder(nv.ID))) ]  );
+                [info(i).SubFold1 , info(i).SubFold2] = dealsome(sf);
+                %info(i).ID = i;
+                info(i).Tdat_ID = nv.ID;
+
+                %o.VKJeeg = fillRowNew(Sources = info(i),Target = o.VKJeeg);
             end
-            onlyEegL = strcmp({info.type},'eeg');
-            subjectsEegFilesC = {info(  onlyEegL   ).subject} ;
+
+            TfilesOneSub = categorify(struct2table(info));
+
+            oneSub_eegL = TfilesOneSub.Type =='eeg';
+            o.VKJeeg = tableAppend(Source = TfilesOneSub(oneSub_eegL, :), Target = o.VKJeeg);
 
             % update Tdati
-            o.Tdati.ID(nv.ID)  = nv.ID;
-            o.Tdati.SingleSubject(nv.ID) = isequal(subjectsEegFilesC{:});
-            o.Tdati.Files(nv.ID) = numel(subjectsEegFilesC);
-            SubjectFoundByScanning = subjectsEegFilesC{1};
-            o.Tdati.Subject(nv.ID) = SubjectFoundByScanning;
+            [o.Tdati, rTdati] = rowInit(o.Tdati);
+            o.Tdati.ID(rTdati.row)  = nv.ID;
+            o.Tdati.SingleSubject(rTdati.row) = all(TfilesOneSub.Subject == TfilesOneSub.Subject(1));
+            o.Tdati.Files(rTdati.row) = size(TfilesOneSub,1);
+            SubjectFoundByScanning = char(TfilesOneSub.Subject(1));
+            o.Tdati.Subject(rTdati.row) = SubjectFoundByScanning;
 
 
-            startDns = [info(  onlyEegL   ).timeDn];
+            startDns = datenum(    char(    TfilesOneSub{oneSub_eegL, 'Start'}     )     );
             startDns = sort(startDns);
-            o.Tdati.StartDate{nv.ID} = datestr(startDns(1));
-            o.Tdati.EndDate{nv.ID} = datestr(startDns(end));
-            o.Tdati.TimeSpanDays(nv.ID) = startDns(end)-startDns(1);
-            o.Tdati.TimeSpanDays(nv.ID) = startDns(end)-startDns(1);
+            o.Tdati.StartDate{rTdati.row} = datestr(startDns(1));
+            o.Tdati.EndDate{rTdati.row} = datestr(startDns(end));
+            o.Tdati.TimeSpanDays(rTdati.row) = startDns(end)-startDns(1);
+            o.Tdati.TimeSpanDays(rTdati.row) = startDns(end)-startDns(1);
             % Huge warning! this needs to be corrected, its a very bad guess!!!!
-            o.Tdati.MinsPerFile(nv.ID) = mode(diff(startDns)) * 24*3600; 
-            o.Tdati.TimeRawDays(nv.ID) = mode(diff(startDns)) * o.Tdati.Files(nv.ID);
+            o.Tdati.MinsPerFile(rTdati.row) = mode(diff(startDns)) * 24*3600; 
+            o.Tdati.TimeRawDays(rTdati.row) = mode(diff(startDns)) * o.Tdati.Files(rTdati.row);
 
-
-            notNaNidx=~isnan([info(  onlyEegL   ).number]);
-            if ~isempty([info(notNaNidx).number])  % after removal of NaNs, If I found numbers
-          
-                if isequal(info(notNaNidx).number) % if all same
-                    number = str2double(info(notNaNidx(1)).number);
-                    o.Tdati.Number(nv.ID)  = number;
-                else
-                    o.sprintf2('MoreSubjectNumbers',char(o.Tdati.Subject(nv.ID)));
+            nonNaNnumbers = TfilesOneSub.Number(  ~isnan(TfilesOneSub.Number)   );
+            if numel(nonNaNnumbers)>0
+                if all(  TfilesOneSub.Number == TfilesOneSub.Number(1)  )
+                    o.Tdati.Number(rTdati.row) =  TfilesOneSub.Number(1);
+                    else
+                        o.sprintf2('MoreSubjectNumbers',char(o.Tdati.Subject(rTdati.row)));
                 end
             end
-            
-            
-
+ 
         end
 
-
-%         function assignRoleBy(o,nv)
-%             % 
-%             arguments
-%                o = []
-%                nv.Treatment (1,:) char = [];
-%                nv.RootDir (1,:) char = [];
-%                nv.Role (1,:) char = [];
-%             end
-%       
-%             if ~isempty(nv.Role) 
-%                 if ~isempty(nv.Treatment) &&  ~isempty(nv.RootDir)
-%                     disp2('Overspecified');
-%                     return
-%                 end
-%                 
-%                 if ~isempty(nv.Treatment) % we have
-%                     o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'Treatment',nv.Treatment,nv.Role)); % assigned 
-%                 end
-%                 if ~isempty(nv.RootDir) % we have 
-%                     o.Tsub = table_rowfun(Table = o.Tsub, Function = @(x)assignRoleByData_tableRow(x,'RootDir',nv.Treatment,nv.Role)); % assigned 
-%                 end
-%             end
-%             function y = assignRoleByData_tableRow(Trow,Column,ColumnAskValue,Role)
-%                         if strcmp(char(Trow.(Column)),ColumnAskValue)
-%                             Trow.Role = Role;
-%                         end
-%                         y = Trow; 
-%             end
-%  
-%         end
 
 
         function assignRoleBy(o,nv)

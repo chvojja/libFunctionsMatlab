@@ -15,7 +15,7 @@ for col = 1:c
                      y(:,col) = cellfun(@isempty,T{:,col});
                 case 'logical'
                         %y(:,col) = ones(r,1); %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% !!!!!!!!!!!!!!!!!!!!!!!
-                case {'int8','int16' ,'int32' ,'int64' }  
+                case {'int8','int16' ,'int32' ,'int64' , 'uint8','uint16' ,'uint32' ,'uint64' }  
                     y(:,col) = T{:,col} == 0;    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% !!!!!!!!!!!!!!!!!!!!!!!
                 otherwise
                      y(:,col) = ismissing(T{:,col});
@@ -24,7 +24,7 @@ for col = 1:c
         case 'cell'
             y(:,col) = cellfun(@isempty,T(:,col));
 
-        case {'int8','int16' ,'int32' ,'int64' }  
+        case {'int8','int16' ,'int32' ,'int64' , 'uint8','uint16' ,'uint32' ,'uint64' } 
             y(:,col) = T(:,col) == 0;  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% !!!!!!!!!!!!!!!!!!!!!!! 
 
         case 'logical'
