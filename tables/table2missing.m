@@ -15,7 +15,6 @@ VariableTypes = varfun(@class,T,'OutputFormat','cell');
 Y=table('Size',[nv.Nrows c],'VariableNames',T.Properties.VariableNames,'VariableTypes',VariableTypes);
 
 
-
 for i = 1:c
     varType = VariableTypes{i};
     varName = T.Properties.VariableNames{i};
@@ -23,7 +22,6 @@ for i = 1:c
         case 'cell'
 
         case {'double', 'single'}
-%              Y(:,i)=type2missingt(varType);
              Y.(varName)(:) = NaN;
     end
 

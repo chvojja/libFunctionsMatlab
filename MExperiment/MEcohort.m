@@ -17,7 +17,7 @@ classdef MEcohort < Verboser %& Tabler
 %         N_subj
 %         N_subjInGroupCTRL
 %         N_subjInGroupTREAT
-        %N_Trows = 5; % default number of rows
+        N_Trows = 1; % default number of rows
 
      
 
@@ -37,12 +37,12 @@ classdef MEcohort < Verboser %& Tabler
             o = o@Verboser(nv_verbC{:});
             defineMessages(o); 
 
-            o.Tsub = tableNewEmpty('ID','double','Subject','cat','Number','double','Treatment','cat','Role','cat', Nrows = 1); % one row per subject    
-            o.Tdat = tableNewEmpty('ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical', Nrows = 10); % one row per data folder
-            o.Tdati = tableNewEmpty('ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical', Nrows = 10); % one row per data folder
-%             o.T.eeg = tableNewEmpty(o.N_Trows,'Fs','double','Channels','cell','CountCh','double');
-            o.VKJeeg = tableNewEmpty('ID','uint32','Tdat_ID','uint32','Subject','cat','Start','char','End','char','Channels','double','ChNames','cell','FilePath','char','SubFold1','cat','SubFold2','cat','Dev','cat', Nrows = 10); %'HasLbl','double','FilePathLbl','char'); % one row per file
-            o.VKJlbl = tableNewEmpty('ID','uint32','Tdat_ID','uint32','VKJeeg_ID','uint32','Subject','cat','FilePath','char','SubFold1','cat','SubFold2','cat', Nrows = 1); %'HasLbl','double','FilePathLbl','char'); % one row per file
+            o.Tsub = tableNewEmpty('ID','double','Subject','cat','Number','double','Treatment','cat','Role','cat', Nrows = o.N_Trows); % one row per subject    
+            o.Tdat = tableNewEmpty('ID','double','Subject','cat','Number','double','Format','cat','Treatment','cat','RootDir','cat','Folder','cat','Scanned','logical', Nrows = o.N_Trows); % one row per data folder
+            o.Tdati = tableNewEmpty('ID','double','Subject','cat','Number','double','SingleSubject','logical','Files','double','StartDate','char','EndDate','char','TimeSpanDays','double','TimeRawDays','double','MinsPerFile','double','MissingFiles','logical', Nrows = o.N_Trows); % one row per data folder
+
+            o.VKJeeg = tableNewEmpty('ID','uint32','Tdat_ID','uint32','Subject','cat','Start','char','End','char','Channels','double','ChNames','cell','FileName','char','FilePath','char','SubFold1','cat','SubFold2','cat','Dev','cat', Nrows = o.N_Trows); %'HasLbl','double','FilePathLbl','char'); % one row per file
+            o.VKJlbl = tableNewEmpty('ID','uint32','Tdat_ID','uint32','VKJeeg_ID','uint32','Subject','cat','Start','char','FileName','char','FilePath','char','SubFold1','cat','SubFold2','cat', Nrows = o.N_Trows); %'HasLbl','double','FilePathLbl','char'); % one row per file
 
             
 
@@ -112,7 +112,7 @@ classdef MEcohort < Verboser %& Tabler
                 %o.Tdat = table_fillRowByFields(Table = o.Tdat, Row = nv.ID, DataStructure = nv);
                 switch nv.Format
                     case 'VKJ'
-                         o.VKJ_scanVKJDataByID(ID = rTdat.id); % look to the folder and gather other info - and store it in Tdati
+                         o.VKJ_scanVKJDataByID(Tdat_ID = rTdat.id); % look to the folder and gather other info - and store it in Tdati
                 end
 
                 %%  Compare user input (Tdat) and informations gathered by scanning the folder (Tdati)
@@ -202,9 +202,9 @@ classdef MEcohort < Verboser %& Tabler
         end
 
         
-        [o.Tdat, rTdat] = rowInit(o.Tdat);
+        rTdat.row = find(o.Tdat.ID == nv.Tdat_ID);
         
-        dd=dirfile([fullfile(char(o.Tdat.RootDir(nv.ID)),char(o.Tdat.Folder(nv.ID))) '\**\*.mat' ]);
+        dd=dirfile([fullfile(char(o.Tdat.RootDir(rTdat.row)),char(o.Tdat.Folder(rTdat.row))) '\**\*.mat' ]);
         Nfiles  = numel(dd);
         
 
@@ -212,48 +212,83 @@ classdef MEcohort < Verboser %& Tabler
             % Get info from file names
             for i = 1:Nfiles
                 [info(i).Subject, info(i).Number, info(i).Start, info(i).Dev, info(i).Type ] = VKJ_parseFileName(dd(i).name);   
-
+                info(i).FileName = [dd(i).name];
                 info(i).FilePath = [dd(i).folder filesep dd(i).name];
-                sf = subFolders( FilePath = info(i).FilePath,  Offset = [fullfile(char(o.Tdat.RootDir(nv.ID)),char(o.Tdat.Folder(nv.ID))) ]  );
+                sf = subFolders( FilePath = info(i).FilePath,  Offset = [fullfile(char(o.Tdat.RootDir(rTdat.row)),char(o.Tdat.Folder(rTdat.row))) ]  );
                 [info(i).SubFold1 , info(i).SubFold2] = dealsome(sf);
                 %info(i).ID = i;
-                info(i).Tdat_ID = nv.ID;
-
-                %o.VKJeeg = fillRowNew(Sources = info(i),Target = o.VKJeeg);
+                info(i).Tdat_ID = nv.Tdat_ID;
             end
 
             TfilesOneSub = categorify(struct2table(info));
-
+            % Handle eeg
             oneSub_eegL = TfilesOneSub.Type =='eeg';
             o.VKJeeg = tableAppend(Source = TfilesOneSub(oneSub_eegL, :), Target = o.VKJeeg);
+            % Handle lbl
+            oneSub_lblL = TfilesOneSub.Type =='lbl';
+            o.VKJlbl = tableAppend(Source = TfilesOneSub(oneSub_lblL, :), Target = o.VKJlbl);
+
+
+%             eeg_matchesL = rowfun(@(x) VKJ_compareFileNames(x,    o.VKJlbl.FileName(500)   ),o.VKJeeg,'InputVariables','FileName','OutputFormat','uniform')
+%             o.VKJlbl.ID(eeg_matchesL)
+
+             VKJeeg_ID_inVKJlbl = rowfunInLoop(FirstColumnFun = @(x,y) VKJ_compareFileNames(x, y), x = o.VKJlbl.FileName , Table = o.VKJeeg(:,{'FileName','ID'}) );
+  %           VKJeeg_ID_inVKJlbl = rowfunInLoop(FirstColumnFun = @isequal, x = o.VKJlbl.Start , Table = o.VKJeeg(:,{'Start','ID'}) );
+             o.VKJlbl.VKJeeg_ID = VKJeeg_ID_inVKJlbl;
 
             % update Tdati
-            [o.Tdati, rTdati] = rowInit(o.Tdati);
-            o.Tdati.ID(rTdati.row)  = nv.ID;
-            o.Tdati.SingleSubject(rTdati.row) = all(TfilesOneSub.Subject == TfilesOneSub.Subject(1));
-            o.Tdati.Files(rTdati.row) = size(TfilesOneSub,1);
-            SubjectFoundByScanning = char(TfilesOneSub.Subject(1));
-            o.Tdati.Subject(rTdati.row) = SubjectFoundByScanning;
+            %[o.Tdati, rTdati] = rowInit(o.Tdati);
+
+            TdatiRow = table2missingRow(o.Tdati);
+
+            TdatiRow.ID  = nv.Tdat_ID;
+            TdatiRow.SingleSubject = all(TfilesOneSub.Subject == TfilesOneSub.Subject(1));
+            TdatiRow.Files = size(TfilesOneSub,1);
+            TdatiRow.Subject = char(TfilesOneSub.Subject(1));
 
 
             startDns = datenum(    char(    TfilesOneSub{oneSub_eegL, 'Start'}     )     );
             startDns = sort(startDns);
-            o.Tdati.StartDate{rTdati.row} = datestr(startDns(1));
-            o.Tdati.EndDate{rTdati.row} = datestr(startDns(end));
-            o.Tdati.TimeSpanDays(rTdati.row) = startDns(end)-startDns(1);
-            o.Tdati.TimeSpanDays(rTdati.row) = startDns(end)-startDns(1);
+            TdatiRow.StartDate = datestr(startDns(1));
+            TdatiRow.EndDate = datestr(startDns(end));
+            TdatiRow.TimeSpanDays = startDns(end)-startDns(1);
+            
             % Huge warning! this needs to be corrected, its a very bad guess!!!!
-            o.Tdati.MinsPerFile(rTdati.row) = mode(diff(startDns)) * 24*3600; 
-            o.Tdati.TimeRawDays(rTdati.row) = mode(diff(startDns)) * o.Tdati.Files(rTdati.row);
+            TdatiRow.MinsPerFile = mode(diff(startDns)) * 24*3600; 
+            TdatiRow.TimeRawDays= mode(diff(startDns)) * TdatiRow.Files;
 
+            [o.Tdati , Tdati_row] = tableAppend(Source=TdatiRow, Target = o.Tdati);
+
+           % o.Tdati = [o.Tdati TdatiRow; % save
+%             o.Tdati.ID(rTdati.row)  = nv.ID;
+%             o.Tdati.SingleSubject(rTdati.row) = all(TfilesOneSub.Subject == TfilesOneSub.Subject(1));
+%             o.Tdati.Files(rTdati.row) = size(TfilesOneSub,1);
+%             o.Tdati.Subject(rTdati.row) = char(TfilesOneSub.Subject(1));
+% 
+% 
+%             startDns = datenum(    char(    TfilesOneSub{oneSub_eegL, 'Start'}     )     );
+%             startDns = sort(startDns);
+%             o.Tdati.StartDate{rTdati.row} = datestr(startDns(1));
+%             o.Tdati.EndDate{rTdati.row} = datestr(startDns(end));
+%             o.Tdati.TimeSpanDays(rTdati.row) = startDns(end)-startDns(1);
+%             o.Tdati.TimeSpanDays(rTdati.row) = startDns(end)-startDns(1);
+%             % Huge warning! this needs to be corrected, its a very bad guess!!!!
+%             o.Tdati.MinsPerFile(rTdati.row) = mode(diff(startDns)) * 24*3600; 
+%             o.Tdati.TimeRawDays(rTdati.row) = mode(diff(startDns)) * o.Tdati.Files(rTdati.row);
+
+            %
             nonNaNnumbers = TfilesOneSub.Number(  ~isnan(TfilesOneSub.Number)   );
             if numel(nonNaNnumbers)>0
                 if all(  TfilesOneSub.Number == TfilesOneSub.Number(1)  )
-                    o.Tdati.Number(rTdati.row) =  TfilesOneSub.Number(1);
+                    o.Tdati.Number(Tdati_row) =  TfilesOneSub.Number(1);
                     else
-                        o.sprintf2('MoreSubjectNumbers',char(o.Tdati.Subject(rTdati.row)));
+                        o.sprintf2('MoreSubjectNumbers',char(o.Tdati.Subject(Tdati_row)));
                 end
             end
+
+
+
+
  
         end
 

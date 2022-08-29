@@ -1,4 +1,4 @@
-function Y = tableAppend(nv)
+function [Y, startRow] = tableAppend(nv)
 %APPENDROWS Append rows in existing table
 % assumptions:
 % 1. Exactly one column is named "ID" in Target but not in the Source
@@ -72,11 +72,16 @@ Tnew = [Tsource Tmissing ];
 [r,c] = size(nv.Target);
 rSource = size(nv.Source,1);
 if r-rTarget.row > rSource
-
-     nv.Target(rTarget.row:rTarget.row+rSource-1,:) = Tnew;
+        % we make a dirty trick
+        % this will keep the data type of the shits consistent with the target:
+        temp = [nv.Target(end,:); Tnew];
+        nv.Target(rTarget.row:rTarget.row+rSource-1,:) = temp(2,:);
+        Y = nv.Target;
+        startRow = rTarget.row;
 else
     nv.Target(rTarget.row:end,:) =[];
     Y = [nv.Target; Tnew];
+    startRow = size(nv.Target,1)+1;
 end
 
 end
