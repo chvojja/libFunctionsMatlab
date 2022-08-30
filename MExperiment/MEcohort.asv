@@ -287,8 +287,9 @@ classdef MEcohort < Verboser %& Tabler
             TfilesOneSub = categorify(struct2table(info));
 
             % FileFilter
-           
-            TfilesOneSub = filterByValues(Table = TfilesOneSub, FieldValuePairs = o.FileFilter, BetweenPairsFun = @or);
+            if ~isempty(o.FileFilter)
+                 TfilesOneSub = filterByValues(Table = TfilesOneSub, FieldValuePairs = o.FileFilter, BetweenPairsFun = @or);
+            end
             
             % Handle eeg
             oneSub_eegL = TfilesOneSub.Type =='eeg';

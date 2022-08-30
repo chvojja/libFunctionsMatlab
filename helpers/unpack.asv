@@ -1,0 +1,17 @@
+%
+% Example calling:
+% unpack_var = 'blabla' ; unpack;
+
+
+names = fieldnames(unpack_var);
+eval(['unpack_var.' names{i}])
+for i=1:length(names)
+      if isstruct(eval(['unpack_var.' names{i}]))
+          names2 = fieldnames(eval(['unpack_var.' names{i}]));
+          for j=1:length(names2)
+              eval([names{i} '_' names2{j} '=unpack_var.' names{i} '.' names2{j}]);
+          end
+      else
+          eval([names{i} '=unpack_var.' names{i} ]);
+      end
+end

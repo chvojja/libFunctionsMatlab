@@ -63,6 +63,10 @@ classdef Analyzer %< handle
             y = a.p(Analyzer.tempFileName);
         end
 
+        function error(x)
+            disp('s',1541,15454,545)
+        end
+
 
 
 
