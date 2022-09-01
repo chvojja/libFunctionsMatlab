@@ -31,57 +31,66 @@ end
 varsInBoth = intersect( nv.Target.Properties.VariableNames , nv.Source.Properties.VariableNames );
 Tsource = nv.Source(:,varsInBoth);
 
-%% Fix the case when empty cell array column is in Source but in Target there is categorical column 
-varTypes_source = varfun(@class,Tsource,'OutputFormat','cell');
-varTypes_taregt = varfun(@class,nv.Target,'OutputFormat','cell');
-for i = 1:numel(varTypes_source)
-    if strcmp(varTypes_source{i},'cell')
-        varName = Tsource.Properties.VariableNames{i};
-        if isempty([Tsource.(varName){:}]) % is all column empty
-            
-            isVarNameL = isequalncell(varName,nv.Target.Properties.VariableNames);
-            if strcmp( varTypes_taregt(isVarNameL), 'categorical' )
-                % need to convert it to empty cellstr to make the concatenation work
-                Tsource.(varName)(:) = {''};
+if isempty(Tsource) 
+        Y = nv.Target;
+else
+    %% Fix the case when empty cell array column is in Source but in Target there is categorical column 
+    varTypes_source = varfun(@class,Tsource,'OutputFormat','cell');
+    varTypes_taregt = varfun(@class,nv.Target,'OutputFormat','cell');
+    for i = 1:numel(varTypes_source)
+        if strcmp(varTypes_source{i},'cell')
+            varName = Tsource.Properties.VariableNames{i};
+            if isempty([Tsource.(varName){:}]) % is all column empty
+                
+                isVarNameL = isequalncell(varName,nv.Target.Properties.VariableNames);
+                if strcmp( varTypes_taregt(isVarNameL), 'categorical' )
+                    % need to convert it to empty cellstr to make the concatenation work
+                    Tsource.(varName)(:) = {''};
+                end
             end
         end
     end
-end
+            
+    
+    varsMissingNeeded = setdiff(nv.Target.Properties.VariableNames, varsInBoth );
+    Tmissing = table2missing(nv.Target(:,varsMissingNeeded), Nrows = size(nv.Source,1));
+    
+    [b_hasID_Target,ID_name] = hasID(nv.Target) ;
+    [b_hasID_Source,~] = hasID(nv.Source,Key = ID_name) ;
+    if b_hasID_Target  && ~b_hasID_Source 
+        % then automatically handle IDs
+        targetNans = isnan(nv.Target.(ID_name));
+        nv.Target(targetNans,:) = []; % remove columns with no ID
+    
+        startID = newID(nv.Target);
+        if isempty(startID), startID = 1; end % in this case we are appending to an empty table
+       
+        Tmissing.(ID_name)=[startID:(startID+size(nv.Source,1)-1)]';
+    end
+    
+    
+    Tnew = [Tsource Tmissing ];
+    % crop Target if necesary or insert ?
+    [~, rTarget] = rowInit(nv.Target);
+    [r,c] = size(nv.Target);
+    rSource = size(nv.Source,1);
+    if r-rTarget.row > rSource
+            % we make a dirty trick
+            % this will keep the data type of the shits consistent with the target:
+            temp = [nv.Target(end,:); Tnew];
+            nv.Target(rTarget.row:rTarget.row+rSource-1,:) = temp(2,:);
+            Y = nv.Target;
+            startRow = rTarget.row;
+    else
+     
+            nv.Target(rTarget.row:end,:) =[];
+            Y = [nv.Target; Tnew];
+            startRow = size(nv.Target,1)+1; % nevim co je startRow
+    
         
-
-varsMissingNeeded = setdiff(nv.Target.Properties.VariableNames, varsInBoth );
-Tmissing = table2missing(nv.Target(:,varsMissingNeeded), Nrows = size(nv.Source,1));
-
-[b_hasID_Target,ID_name] = hasID(nv.Target) ;
-[b_hasID_Source,~] = hasID(nv.Source,Key = ID_name) ;
-if b_hasID_Target  && ~b_hasID_Source 
-    % then automatically handle IDs
-    targetNans = isnan(nv.Target.(ID_name));
-    nv.Target(targetNans,:) = []; % remove columns with no ID
-
-    startID = newID(nv.Target);
-    if isempty(startID), startID = 1; end % in this case we are appending to an empty table
-   
-    Tmissing.(ID_name)=[startID:(startID+size(nv.Source,1)-1)]';
-end
-
-
-Tnew = [Tsource Tmissing ];
-% crop Target if necesary or insert ?
-[~, rTarget] = rowInit(nv.Target);
-[r,c] = size(nv.Target);
-rSource = size(nv.Source,1);
-if r-rTarget.row > rSource
-        % we make a dirty trick
-        % this will keep the data type of the shits consistent with the target:
-        temp = [nv.Target(end,:); Tnew];
-        nv.Target(rTarget.row:rTarget.row+rSource-1,:) = temp(2,:);
-        Y = nv.Target;
-        startRow = rTarget.row;
-else
-    nv.Target(rTarget.row:end,:) =[];
-    Y = [nv.Target; Tnew];
-    startRow = size(nv.Target,1)+1;
+            %startRow = size(nv.Target,1);
+        
+    end
 end
 
 end

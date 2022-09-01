@@ -67,10 +67,11 @@ classdef MEcohort < Verboser %& Tabler
         end
 
         function consolidate(o)
-             
+             if ~isempty(find(all(ismissingt(o.VKJlbl)'))) % if VKJlbl is filed with valid data
              % Link lbl files to their eeg files
-             Touter = leftjoinsorted(o.VKJlbl,o.VKJeeg,'LeftKeys',{'Subject','Start'},'RightKeys',{'Subject','Start'},'LeftVariables', {'ID'},'RightVariables', {'ID'});
-             o.VKJlbl.VKJeeg_ID = Touter.ID_right;
+                 Touter = leftjoinsorted(o.VKJlbl,o.VKJeeg,'LeftKeys',{'Subject','Start'},'RightKeys',{'Subject','Start'},'LeftVariables', {'ID'},'RightVariables', {'ID'});
+                 o.VKJlbl.VKJeeg_ID = Touter.ID_right;
+             end
 
              % Delete temporary unnecesarry columns
              o.Tdati.Number=[];

@@ -1,4 +1,4 @@
-% save7 script v1.0
+% save7 script v1.1
 % What it does:
 % 1. Saves variables solely in -v7 .mat format
 % 2. The name of the variable as .mat file is always the same as the name in the workspace. 
@@ -70,8 +70,6 @@ if exist('save7p','var') && ~isempty(save7p)  &&  exist('save7vars','var') && ~i
         end
     end
     clear save7p save7vars save7var save7iv ;
-else
-    disp2(save7verbose,'save7 was not provided with valid parameters.');
 end
 
 

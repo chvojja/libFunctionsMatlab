@@ -10,20 +10,13 @@ end
 fileInfo = [];
 
 
-chNames = lblFileContent.label.(labelName).chanNames; 
 
-chNames=chNames;
-Nch=numel(chNames);
-Nch=Nch;
+label=load2(nv.FilePath);
 
-
-label=load(nv.FilePath);
-
-
-Tlabels = tableNewEmpty('Subject','cat',...
+%                    'FileName','cat',...
+%                    'FilePath','cat',...
+TmissingRow = tableNewEmpty('Subject','cat',...
                     'Instant','double',...       
-                   'FileName','cat',...
-                   'FilePath','cat',...
                    'ChName','cat',...
                    'LabelName','cat',...
                    'StartDn','double',...
@@ -33,6 +26,7 @@ Tlabels = tableNewEmpty('Subject','cat',...
                    'Value','double',...
                    'Color','cat',...
                    Nrows = 1); 
+%Trow = table2missingRow(Tlabels);
 % 
 % Tfiles = tableNewEmpty( 'Subject','cat',...
 %                    'FileName','cat',...
@@ -42,6 +36,7 @@ Tlabels = tableNewEmpty('Subject','cat',...
 %                    'ChNames','cell',... 
 %                    'NChannels','double',... 
 
+Tlabels = TmissingRow;   Tlabels(1,:) = [];
 
 labelNames = fieldnames(label);
 Ndet=numel(labelNames); % choose particular detection names
@@ -56,15 +51,13 @@ for kDet=1:Ndet
                 chStruct = label.(labelName).(num2kch(kch));
                 if ~isempty(chStruct)
                     for i = 1:numel(chStruct.posN)  
-                        Trow = table2missingRow(o.Tlabels);
+                        
+                        Trow = TmissingRow;
 
-Trow.Subject = label.(labelName).subject;
-                   Trow.Instant','double',...       
-                   Trow.FileName','cat',...
-                  Trow.FilePath','cat',...
-                   Trow.ChName','cat',...
-                   Trow.LabelName = labelName
-
+                        Trow.Subject = label.(labelName).subject;
+                        Trow.Instant = double(label.(labelName).instant) ;   
+                        Trow.ChName = chStruct.ChName;
+                        Trow.LabelName = labelName;
                         Trow.StartDn = chStruct.posN(i);
                         Trow.EndDn = chStruct.posN(i) + chStruct.durN(i);
                         Trow.DurationDn = chStruct.durN(i);
@@ -72,7 +65,9 @@ Trow.Subject = label.(labelName).subject;
                         Trow.Value = chStruct.value(i);
                         Trow.Color= label.(labelName).color;
 
-                        [Tlabel , inewrow] = tableAppend(Source=Trow, Target = Tlabel);
+                        Tlabels = [Tlabels; Trow;];
+
+                        %[Tlabels , inewrow] = tableAppend(Source=Trow, Target = Tlabels);
         
                     end
                 end  
@@ -81,6 +76,10 @@ Trow.Subject = label.(labelName).subject;
 end
 
 
+
+end
+
+%Tlabels(1,:) = [];
 
 
 end

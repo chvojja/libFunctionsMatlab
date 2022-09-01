@@ -19,6 +19,9 @@ if b_hasID
         
 
     else % A new row is needed
+        if size(T,1)==0
+            disp('d')
+        end
 
         newRow = T(end,:);
         for iCol=1:c
@@ -31,7 +34,21 @@ if b_hasID
     id = newID(T);
 
 else
-    return
+    missingL = ismissingt(T); 
+    missingL(isnan(missingL))=1;
+    rowsAllFree = find(~any(~missingL'));
+    if ~isempty(rowsAllFree)
+        row = rowsAllFree(1);
+    else
+                newRow = T(end,:);
+        for iCol=1:c
+            newRow{1,iCol} = val2missingt(newRow{1,iCol});
+        end
+        T = [T ; newRow];
+
+        row =  r+1;
+    end
+    id =[];
 end
 
 rT.row=row;
