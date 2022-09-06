@@ -1,6 +1,8 @@
-function x = uncell(x)
+function varargout = uncell(x)
 %UNCELL Unnests a cell if necessary
 if iscell(x)
-    x = x{:};
+    varargout = { x{:} };   
+else
+    varargout{1} = x;
 end
 

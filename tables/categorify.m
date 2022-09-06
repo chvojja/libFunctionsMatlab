@@ -10,6 +10,7 @@ N=numel(varTypes);
         
         switch varType
             case 'char'
+                T.(fieldName) = cellstr(T.(fieldName));
                 T.(fieldName) = categorical(T.(fieldName));
 
             case 'cell'

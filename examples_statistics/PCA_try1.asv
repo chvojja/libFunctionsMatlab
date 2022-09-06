@@ -1,0 +1,13 @@
+
+
+%% Try PCA
+clear all
+load hald
+[coeff,score,latent] = pca(ingredients);
+
+score*coeff' % these are original x with means subtracted
+ingred_means = mean(ingredients);
+ingredients - ingred_means  % (X-mean(x))= score*coeff' e.g. to transform x to the PCA's new base, we need to multiply: (X-mean(x))*inv(coeff')
+
+coeffTInv = inv(coeff'); % these are the weig
+

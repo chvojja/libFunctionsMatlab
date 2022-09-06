@@ -40,6 +40,7 @@ classdef Verboser < handle
             % Computation
             o.addMessage('Progress','Current progress: %d out of %d  %s'); % what out of how much of what
             o.addMessage('ProgressPerc','Current progress: %d %%. '); % what out of 100%
+            o.addMessage('ProgressPerc','Current progress: %d %%  in task: %s. '); % what out of 100%
             % Gratefull
             o.addMessage('ThankJane','Honestly, I appreciate your programming skills, Jane.'); 
             o.addMessage('ThankLenka','Honestly, I appreciate your programming skills, Lenka.'); 
