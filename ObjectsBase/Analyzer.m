@@ -1,4 +1,4 @@
-classdef Analyzer %< handle
+classdef Analyzer < handle
     %A Constants and Static methods for current analysis
     
     properties   (Abstract, Constant)

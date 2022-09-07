@@ -1,0 +1,90 @@
+function [digits,decimal] = nsigdigits(x)
+
+% deter
+
+
+if isnumeric(x)
+    %% TODO
+    digits_beforedecimal = ceil(log10(max(1,abs(x)*(1+eps))));
+    
+    xstr = num2str(x); %sprintf('%.999g', x);
+    afterdot_pos = find( xstr == '.') + 1;
+    if isempty(afterdot_pos); afterdot_pos = length(xstr) + 1; end
+    digits_afterdecimal = length(xstr) - afterdot_pos + 1;
+    y = digits_beforedecimal + digits_afterdecimal;
+else
+
+     xstr = x;
+     dot_pos = find( xstr == '.') ;
+     e_pos = find( xstr == 'e' | xstr == 'E'  ) ;
+     if ~isempty( e_pos )
+        
+        multiplier = str2num( xstr(e_pos+1:end) );
+        xstr(e_pos:end)=[];
+     end
+
+
+
+%          if isempty( numel(dot_pos) )
+%              digits = lenth(xstr)-1;
+%          else
+%              xstr(dot_pos)=[];
+%              xstrDigitL = ( xstr ~= '0') ;%&  ( xstr ~= '.' );
+%              for i = 1:numel(xstr)
+%                  if xstrDigitL(i)
+%                      digits= length(xstr)-i +1  ;%- numel(find(  xstr == '.' ) )+2 -1;
+%             
+%                      break
+%                  end
+%              end
+%          end
+
+    if isempty( dot_pos )
+        digits =  length(xstr);
+        decimal = -digits+1 ;    % a bug - leading zeros
+    else
+        NbeforeDec = numel(xstr(1:dot_pos-1));
+        for i = 1:NbeforeDec
+                 if xstr(i)~='0'
+                      digits_beforedecimal=NbeforeDec-i+1;
+                      digits_afterdecimal = length(xstr) - NbeforeDec -1;
+                      digits = digits_beforedecimal + digits_afterdecimal;
+                      decimal=digits_afterdecimal;
+                     return
+                 end
+        end
+        NafterDec = numel(xstr(dot_pos+1:end));
+        for i = dot_pos+1 : length(xstr) 
+                 if xstr(i)~='0'
+                      digits_beforedecimal=0;
+                      digits_afterdecimal = length(xstr)  - i+1;
+                      digits = digits_beforedecimal + digits_afterdecimal;
+                      decimal=  (length(xstr) -dot_pos );
+                     return
+                 end
+        end
+    end
+end
+
+     
+   % y = digits_beforedecimal + digits_afterdecimal;
+    
+
+
+%     if isempty(dot_pos)
+%         digits_beforedecimal = length(xstr); % this might be wrong if the number has exp notation
+%         digits_afterdecimal = 0;
+%       
+%     else
+%         digits_beforedecimal = length(xstr(1:dot_pos-1));
+%         digits_afterdecimal = length(xstr) - digits_beforedecimal -1;
+%     end
+
+end
+
+
+
+
+
+
+

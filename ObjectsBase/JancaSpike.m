@@ -1,4 +1,4 @@
-classdef JancaSpike 
+classdef JancaSpike < handle
     %A Constants and Static methods for current analysis
     
     properties   (Constant)

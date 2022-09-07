@@ -12,6 +12,8 @@ T(:, {'Model_Year', 'Model','org','cyl4'} )=[];  % We dont wont these
 T = movevars(T,'when','After','Mfg'); % We need the response variable to the end, otherwise the fscmrmr function will return indexes that
 % may incorrectly point to the target response variable instead of to the predictors. Second option is just to split the table into 
 % predictors table and single column of response variable.
+T = rmmissing( T ) ;
+sT = summary(T);
 
 %%
 % Determine the relevant variables  (predictors)
@@ -29,6 +31,13 @@ xticklabels( T.Properties.VariableNames(idx)' )
 % grid on
 % xlabel('Feature index')
 % ylabel('Feature weight')
+
+%% Make it imbalanced
+
+
+lateI = find( T.when == 'Late' );
+toDeleteI = randpickpercent(lateI,90);
+T(toDeleteI,:) = [];
 
 
 %% Account for imbalance - set Cost or Priors!
@@ -56,5 +65,7 @@ cvtrainError = kfoldLoss(cvMdl)
 testError = loss(Mdl,Ttest,responseColumnName)
 
 
-%
+%%
+ fitcsvm(X,Y,'KFold',10,'Cost',[0 2;1 0],'ScoreTransform','sign')   % cost gives more penalty for wrong classification class 1 into 2
+
 
