@@ -11,18 +11,16 @@ end
 
 nv.FilePath = char(nv.FilePath);
 eegFileContent = load(nv.FilePath);
-N=size(eegFileContent.s,2);
+%N=size(eegFileContent.s,2);
 label = struct;
 
 % Overall file info
-fileInfo.fileStart = datestr(eegFileContent.dateN);
-    endDn = eegFileContent.dateN + sec2dn(N/eegFileContent.fs);
-fileInfo.fileEnd = datestr( endDn );
-fileInfo.fileDurDn =  endDn-eegFileContent.dateN;
+
+
+fileInfo = VKJ_eegFileContent2FileInfo(eegFileContent);
 
 [~,eegFileName,ext] = fileparts(nv.FilePath);
 fileInfo.srcSigFile = [eegFileName ext];
-
 
 % Nruns = numel(nv.Name);
 

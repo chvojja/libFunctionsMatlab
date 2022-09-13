@@ -71,6 +71,9 @@ classdef MEcohort < Verboser %& Tabler
              % Link lbl files to their eeg files
                  Touter = leftjoinsorted(o.VKJlbl,o.VKJeeg,'LeftKeys',{'Subject','Start'},'RightKeys',{'Subject','Start'},'LeftVariables', {'ID'},'RightVariables', {'ID'});
                  o.VKJlbl.VKJeeg_ID = Touter.ID_right;
+
+                 %% delete all labels that we dont have files to them
+                 o.VKJlbl( Touter.ID_right == 0,:) = [];
              end
 
              % Delete temporary unnecesarry columns
@@ -289,7 +292,10 @@ classdef MEcohort < Verboser %& Tabler
 
             % FileFilter
            
-            TfilesOneSub = filterByValues(Table = TfilesOneSub, FieldValuePairs = o.FileFilter, BetweenPairsFun = @or);
+            %TfilesOneSub = filterByValues(Table = TfilesOneSub, FieldValuePairs = o.FileFilter, BetweenPairsFun = @or);
+            if ~isempty(o.FileFilter)
+                 TfilesOneSub =  o.FileFilter(TfilesOneSub);
+            end
             
             % Handle eeg
             oneSub_eegL = TfilesOneSub.Type =='eeg';

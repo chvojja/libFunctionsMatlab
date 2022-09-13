@@ -66,6 +66,41 @@ testError = loss(Mdl,Ttest,responseColumnName)
 
 
 %%
- fitcsvm(X,Y,'KFold',10,'Cost',[0 2;1 0],'ScoreTransform','sign')   % cost gives more penalty for wrong classification class 1 into 2
+smr = summary(T);
+Mdl = fitcsvm(T,'when','KFold',5,'Cost',[0 2;1 0]);   % cost gives more penalty for wrong classification class 1 into 2
+
+Mdl = fitcsvm(T,'when','KFold',5,'Cost',[0 11;1240 0],'Standardize',true); classLoss = kfoldLoss(Mdl), [prediction,score] = kfoldPredict(Mdl); confusionmat( Mdl.Y, prediction)
+[Xsvm,Ysvm,Tsvm,AUC] = perfcurve(double(Mdlf.Y),double(    score(:,2)  ),1);  AUC
 
 
+
+
+Mdlf = fitcsvm(T,'when','Cost',[0 11;1240 0],'Standardize',true);
+Mdlf = fitPosterior(Mdlf);
+[~,score_svm] = resubPredict(Mdlf); % Classify training data (Mdl.X) using trained classifier 
+[Xsvm,Ysvm,Tsvm,AUCsvm] = perfcurve(double(Mdlf.Y),score_svm(:,Mdlf.ClassNames),'true');
+
+%% In for loop
+
+k=5;
+cp = classperf(lables); 
+cvFolds = crossvalind('Kfold', lables, k);   
+ for i = 1:k                                 
+  testIdx = (cvFolds == i);                %# get indices of test instances
+  trainIdx = ~testIdx;                     %# get indices training instances
+
+
+  svmModel = fitcsvm(data_features(trainIdx,:), lables(trainIdx), 'Standardize',true); % 'KernelFunction','RBF','KernelScale','auto'
+
+  [label,score] = predict(svmModel, data_features(testIdx,:));
+  cp = classperf(cp, pred, testIdx);
+  cumulative_score= [cumulative_score; score];
+  label1 = [label1; label];
+
+end
+acc= cp.CorrectRate;
+conf= cp.CountingMatrix;
+
+[X,Y] = perfcurve(labels,scores,posclass)
+
+%%

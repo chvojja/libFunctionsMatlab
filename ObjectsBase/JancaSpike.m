@@ -16,14 +16,17 @@ classdef JancaSpike < handle
                       nv.fs = 5000;
                   end
                         script_jancaSpikeDetectorSettings;
-                        y.IED_strict5000Hz.settingsStr = jancaspike.strict5000Hz;
-                        y.IED_strict5000Hz.VKJlabelsName = 'IED_strict5000Hz' ;
-                        y.IED_strict5000Hz.VKJlabelsColor = ['0 0 1'];
+                        y.strict5000Hz.settingsStr = jancaspike.strict5000Hz;
+                        y.strict5000Hz.VKJlabelsName = 'strict5000Hz' ;
+                        y.strict5000Hz.VKJlabelsColor = ['0 0 1'];
                         
-                        y.IED_dontmiss5000Hz.settingsStr  = jancaspike.dontmiss5000Hz;
-                        y.IED_dontmiss5000Hz.VKJlabelsName = 'IED_dontmiss5000Hz' ;
-                        y.IED_dontmiss5000Hz.VKJlabelsColor = ['0 0.5 0.8'];
+                        y.dontmiss5000Hz.settingsStr  = jancaspike.dontmiss5000Hz;
+                        y.dontmiss5000Hz.VKJlabelsName = 'dontmiss5000Hz' ;
+                        y.dontmiss5000Hz.VKJlabelsColor = ['0 0.5 0.8'];
 
+                        y.default.settingsStr  = jancaspike.default;
+                        y.default.VKJlabelsName = 'default' ;
+                        y.default.VKJlabelsColor = ['0.4 0.3 0.2'];
               end
 
 

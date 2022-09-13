@@ -1,4 +1,4 @@
-function [meandata,semdata] = meansem(data,sigDigits)
+function [meandata,semdata] = meansem(data)
 %% MEANSEM Returns mean and sem in a scientific way
 % Rounding method of digit "5" depends, it can be up, down, even, random. There is no hard standard.
 % In IEEE 754, there is a recomendation to use rounding toward even because statistically it produces lower error through multiple roundings 
@@ -26,25 +26,6 @@ meandata = mean(data);
 stddata = std(data);
 N = size(data,1);
 semdata = stddata/sqrt(N);
-
-%semdata = round(semdata,sigDigits,'significant');
-devdata = semdata;
-devMeasure = ' (SEM)'
-
-for i = 1: size(data,2)
-   
-     roundDigit = ceil(log10( devdata(i) ));
-     meanStr = num2str( round(meandata(i), -roundDigit+sigDigits) );   
-     devStr = sprintf(['%.' num2str(sigDigits) 'g'], devdata(i) );
-
-
-    means(i) = str2num(sprintf(['%.' num2str(sigDigits) 'g'], mean(data(:,i))));
-    sems(i) =  str2num(sprintf(['%.' num2str(sigDigits) 'g'], std(data(:,i))/sqrt(numel(data(:,i)))   ));
-    meansemStrC{i} = [ meanStr '±'  devStr devMeasure ]
-    %sprintf(['%.' num2str(sigDigits) 'g±%.' num2str(sigDigits) 'g'], [mean(data(:,i))  std(data(:,i))/sqrt(numel(data(:,i)))]);
-end
-
-
 
 
 

@@ -5,6 +5,8 @@ function varargout = printmeansem(meandata,semdata,sigDigits)
 % In this case:   11.5 = 12; 12.5=12.
 % https://blogs.mathworks.com/cleve/2021/02/25/round-with-ties-to-even/
 
+%% TODO it does not work properly
+
 
 switch nargin
     case 1
