@@ -1,0 +1,16 @@
+function printpaper(fpname,nv)
+arguments
+    fpname
+    nv.dpi = 700;
+end
+
+
+
+
+%set(gcf,'PaperUnits','inches','PaperPosition',[0 0 w h]);
+set(gcf,'PaperUnits','centimeters','PaperPosition',[0 0 4 4]);
+set(gcf,'Units','centimeters','Position',[4 1 4 4])
+print(fpname, '-dpng' , ['-r' num2str(nv.dpi)] );
+print('-vector','-depsc','myVectorFile.eps')
+%close(gcf);
+end

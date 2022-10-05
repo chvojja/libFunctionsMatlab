@@ -1,0 +1,17 @@
+function [y1,y2] = splitpath(fpath, splitlevel )
+%SPLITPATH Summary of this function goes here
+%   Detailed explanation goes here
+arguments 
+    nv.FilePath;
+    nv.SplitByLastFew=[];
+    nv.SplitByFirstFew=[];
+end
+    
+pathparts = strsplit(fpath,filesep);
+
+
+
+y2 = fullfile( pathparts{nv.SplitByLastFew:end} );
+
+end
+

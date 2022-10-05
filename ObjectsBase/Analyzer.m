@@ -5,6 +5,7 @@ classdef Analyzer < handle
         % this needs to be defined in derived class
         %root = 'D:\temp_FCD_analyza_1';
         root;
+        %tablefilters;
         
     end
 
@@ -63,9 +64,38 @@ classdef Analyzer < handle
             y = a.p(Analyzer.tempFileName);
         end
 
-        function error(x)
+        function error()
             disp('s',1541,15454,545)
         end
+
+        function varargout = applyfun(nv)
+            % applies a function nv.What on On or OnEach
+
+            arguments
+                nv.On = []; % whatever
+                nv.OnEach = []; % cell
+                nv.What;
+            end
+
+      
+
+            if ismethod(a,nv.What)
+               % fun =  a.(nv.What) ;
+               if ~isempty(nv.On)
+                    varargout{1} = a.(nv.What)(nv.On);
+               elseif ~isempty(nv.OnEach)
+                   varargout = a.(nv.What)(nv.OnEach{:});
+               end
+
+            else
+               if ~isempty(nv.On)
+                   varargout{1} = nv.On;
+               elseif ~isempty(nv.OnEach)
+                   varargout = a.(nv.What)(nv.OnEach{:});
+               end
+            end
+        end
+
 
 
 

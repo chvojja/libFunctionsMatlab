@@ -3,8 +3,10 @@ classdef JancaSpike < handle
     
     properties   (Constant)
 
-        jancaSpikeSettings = JancaSpike.getSettings();
-        
+        strict5000Hz =  JancaSpike.getSettings( Name = 'strict5000Hz' );
+        dontmiss5000Hz =  JancaSpike.getSettings( Name = 'dontmiss5000Hz' );
+        default =  JancaSpike.getSettings( Name = 'default' );
+
     end
 
    
@@ -13,20 +15,29 @@ classdef JancaSpike < handle
 
         function y = getSettings(nv)
                   arguments
-                      nv.fs = 5000;
+                      nv.Fs = 5000;
+                      nv.Name = [];
                   end
-                        script_jancaSpikeDetectorSettings;
-                        y.strict5000Hz.settingsStr = jancaspike.strict5000Hz;
-                        y.strict5000Hz.VKJlabelsName = 'strict5000Hz' ;
-                        y.strict5000Hz.VKJlabelsColor = ['0 0 1'];
-                        
-                        y.dontmiss5000Hz.settingsStr  = jancaspike.dontmiss5000Hz;
-                        y.dontmiss5000Hz.VKJlabelsName = 'dontmiss5000Hz' ;
-                        y.dontmiss5000Hz.VKJlabelsColor = ['0 0.5 0.8'];
 
-                        y.default.settingsStr  = jancaspike.default;
-                        y.default.VKJlabelsName = 'default' ;
-                        y.default.VKJlabelsColor = ['0.4 0.3 0.2'];
+                  switch nv.Name 
+                      case 'strict5000Hz'
+
+                        y.settingsStr = ['-k1 5.50 -k2 5.50 -k3 0 -w 5000 -n 4000' ]; %    Candidate for the most strict settings, sharp and high amplitude
+                        y.VKJlabelsName = 'strict5000Hz' ;
+                        y.VKJlabelsColor = ['0 0 1'];
+
+                      case 'dontmiss5000Hz'               
+
+                        y.settingsStr  = ['-k1 4.50 -k2 4.00 -k3 0.2 -w 5000 -n 4000' ]; %
+                        y.VKJlabelsName = 'dontmiss5000Hz' ;
+                        y.VKJlabelsColor = ['0 0.5 0.8'];
+
+                      case 'default'
+
+                        y.settingsStr  = ['-k1 3.65 -k2 3.65 -k3 0' ];
+                        y.VKJlabelsName = 'default' ;
+                        y.VKJlabelsColor = ['0.4 0.3 0.2'];
+                  end
               end
 
 

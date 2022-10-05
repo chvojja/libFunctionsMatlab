@@ -104,3 +104,83 @@ conf= cp.CountingMatrix;
 [X,Y] = perfcurve(labels,scores,posclass)
 
 %%
+Tf = readtable('C:\Users\Emsušenka\Downloads\customers_v3.xlsx');
+Tf = categorify(Tf);
+% Tf=T;
+%%
+T = Tf;
+
+%T(:, {'CONT_ID', 'CONT_CUSTA_ID','CONT_CUST_ID','CCPJ_CP_ID','POST_NAME','DISTRICT_NAME'} ) = [];  % We dont wont these
+%T = T(:, {'POCET_UPOMINEK_LAST_12_4UPO', 'PARTNER_ISCORPORATION' , 'y' });
+% T = T(:, {'ZPUSOB_ZALOH', 'PARTNER_ISCORPORATION' , 'CP_OKRES','y' });
+% T = T(:, {'ZPUSOB_ZALOH' , 'CP_OKRES','y' });
+%T = T(:, {'CITY_NAME','ZPUSOB_ZALOH','y' });
+%T = T(:, {'CONT_CUSTA_ID','y' });
+
+%T(:, {'POCET_UPOMINEK_LAST_12_4UPO'} ) = []; 
+% T = T(:, {'POST_POSTCODE','ZPUSOB_ZALOH','CONT_CUSTA_ID','y' });
+% T = T(:, {'CONT_CUSTA_ID','y' });
+%T = T(:, {'POCET_UPOMINEK_LAST_12_3UPO','POST_POSTCODE','ZPUSOB_ZALOH','y' });
+%T = T(:, {'POCET_UPOMINEK_LAST_12_4UPO', 'y' });
+%T = T(:, {'CITY_NAME','ZPUSOB_ZALOH','CONT_CUSTA_ID','y' });
+%T = T(:, {'CITY_NAME','CONT_CUSTA_ID','y' });
+%T = T(:, {'CITY_NAME','ZPUSOB_ZALOH','y' });
+T = T(:, {'POCET_UPOMINEK_LAST_12_3UPO','CITY_NAME','ZPUSOB_ZALOH','y' });
+T = rmmissing( T ) ;
+
+[idx,scores] = fscmrmr(T,'y');  % For mix of categorical and continous predictor variables, use fscmrmr, otherwise use fscnca
+%bar(scores(idx));
+%xticklabels( T.Properties.VariableNames(idx)' )
+
+
+responseCounts = histcounts(T.y);
+
+% Undersample the negative class
+negativeInds = find( T.y ~=1 );
+k = round( 0.95*responseCounts(1) );
+negativeInds_1 = randsample(negativeInds,k);
+negativeInds_2 = setdiff(negativeInds,negativeInds_1);
+
+% % Undersample only a little from positive group
+% negativeInds = find( T.y ==1 );
+% k = round( 0.9*responseCounts(1) );
+% population = negativeInds;
+% subsetOFPositiveInds = randsample(population,k);
+% 
+% Tvalidation = T([ subsetOFNegativeInds subsetOFPositiveInds] ,  : );
+
+T( negativeInds_1 ,:) = [];
+
+
+responseCounts = histcounts(T.y);
+
+% % Train
+% Mdl = fitcsvm(T,'y','KFold',5,'Cost',[0 1; 1 0],'Standardize',true); classLoss = kfoldLoss(Mdl), [prediction,score] = kfoldPredict(Mdl); confusionmat( Mdl.Y, prediction)
+% [Xsvm,Ysvm,Tsvm,AUC] = perfcurve(double(Mdl.Y),double(    score(:,2)  ),1);  AUC
+% Mdl1=Mdl;
+
+Mdl = fitcsvm(T,'y','KFold',5,'Cost',[0 responseCounts(2); 1*responseCounts(1) 0],'Standardize',true); classLoss = kfoldLoss(Mdl), [prediction,score] = kfoldPredict(Mdl); confusionmat( Mdl.Y, prediction)
+[Xsvm,Ysvm,Tsvm,AUC] = perfcurve(double(Mdl.Y),double(    score(:,2)  ),1);  AUC
+Mdl2=Mdl;
+
+%
+%   'CITY_NAME','ZPUSOB_ZALOH' 0.76
+% 'CITY_NAME'  0.7221
+% 'CONT_CUSTA_ID' 0.63
+% 'ZPUSOB_ZALOH' 0.65
+% {'CITY_NAME','ZPUSOB_ZALOH','CONT_CUSTA_ID',  0.7844
+
+
+
+
+%% Try logistic regression
+
+% b = glmfit(X,y,'binomial','link','logit')
+
+mdl = fitglm(T,'Distribution','binomial','Link','logit');
+scores = mdl.Fitted.Probability;
+[X,Y,T,AUC] = perfcurve(species(51:end,:),scores,'virginica');
+plot(X,Y)
+rocObj = rocmetrics(species(51:end,:),scores,'virginica');
+plot(rocObj)
+
