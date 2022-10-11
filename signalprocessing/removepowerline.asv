@@ -1,0 +1,34 @@
+function y = removepowerline(x,fs)
+
+shitfactor = 0.1;
+fac = 50;
+
+flist = [fac:fac:(fac*floor(fs/2/fac) )];
+
+flist = flist(1:6);
+for f = flist
+
+phi =2*pi*f/fs;
+
+mag = 0.999;
+z = [ mag*exp(1i*phi); mag*exp(-1i*phi)  ];
+mag = 0.995;
+p = [ mag*exp(1i*phi); mag*exp(-1i*phi)  ];
+
+k = 1;
+[b,a] = zp2tf(z,p,k);
+
+%fvtool(b,a,'polezero')
+
+x = filtfilt(b,a,x);
+
+
+end
+
+
+y = x;
+
+
+
+
+end

@@ -1,5 +1,7 @@
 function y = fevalc(fhandles) %varargin)
-%FUNCELL Evaluate cell array of functions without any input arguments or with some
+%FUNCELL Avoid this function at all cost
+% Dont store a lot of function handles, beware
+% % Evaluate cell array of functions without any input arguments or with some
 % variant with input arguments is way slower so I commented it out
 % Inputs:
 % fhandles

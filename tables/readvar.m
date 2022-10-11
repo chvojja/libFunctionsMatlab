@@ -1,6 +1,5 @@
 function y = readvar(nv)
-%READVAR Summary of this function goes here
-%   Detailed explanation goes here
+%READVAR this function is not the fastest....use loadfun insted
 arguments
     nv.Files = [];  % assuming  the files comes from categorical table variable
     nv.ReadFun;
