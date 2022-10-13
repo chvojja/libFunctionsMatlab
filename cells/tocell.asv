@@ -1,0 +1,13 @@
+function y = tocell(x)
+%TOCELL 
+
+
+if isscalar(x)
+    y = {x};
+    
+else
+    iscategorical(x)
+
+    y = x;
+end
+

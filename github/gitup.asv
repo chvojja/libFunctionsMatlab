@@ -18,7 +18,7 @@ end
 % addressURL = 'https://github.com/';
 
 if ~isempty(nv.URL) 
-    disp('Using provided URL to clone the repository to a new folder.');
+    disp('Using provided URL to clone the repository.');
     system(['git clone ' nv.URL ]);
     return
 end
