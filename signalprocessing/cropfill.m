@@ -4,7 +4,7 @@ arguments
     nv.Signal;
     nv.CropPercent=[];
     nv.CropSamples=[];
-    nv.WhatToFill; % fun(signal) or a numeric value
+    nv.WhatToFill = []; % fun(signal) or a numeric value
 end
 
 Nsignal = length(nv.Signal);
@@ -23,7 +23,11 @@ end
      if isfunctionhandle(nv.WhatToFill)    
         nv.Signal(logiL)=nv.WhatToFill(nv.Signal);
      elseif isnumeric(nv.WhatToFill)
-         nv.Signal(logiL)=nv.WhatToFill;
+         if isempty(nv.WhatToFill)
+             nv.Signal(logiL)= [];
+         else
+             nv.Signal(logiL)=nv.WhatToFill;
+         end
      end
 
      s = nv.Signal;

@@ -1,8 +1,8 @@
 function gitup(nv)
-% upload all files in pwd ( path working directory)
-% remote repository has to be initialized (in github in browser)
-% and cloned using git clone https://github.com/libgit2/libgit2
-% 
+% Usecase - upload all files in pwd ( path working directory) to github by single Matlab command. 
+% This is used solely for using git as a backup tool (not for colaboration since it does not pull from the git!)
+% Remote repository has to be initialized first (on github.com in browser)
+
 
 arguments
     nv.Comment = 'Uploaded from Matlab using gitup()'
@@ -46,19 +46,8 @@ end
 gitAddress = regexp(cmdout,'(?<=remote.origin.url=).+(\.git)','match'); gitAddress = gitAddress{1};
 
 if isempty(gitAddress)
-%     if isempty(nv.URL)
-%         disp('Run this function again with URL parameter (HTTPS/SSH) you get from your new repo at github.com');
-%         if size( ls('C:\Users\Emsušenka\gitsojkaware\test2'),1)<=2
-%             disp('Dont forget to add something to commit! The directory is soooooo empty!');
-%         end
-%         return
-%     else % create a new repo
-%         gitAddress = nv.URL;
-%         disp('The working directory is not recognised as a local git repo, so I create it with the provided URL');
-%         % system('git pull origin main --allow-unrelated-histories')
-%         system(['git init & git add . & git commit -m "first commit" & git branch -M main & git remote add origin ' gitAddress ' & git pull origin main & git push -u origin main']);
-% 
-%     end
+   disp('Git repo address not found.');
+   return;
 else
     disp(['Remote repo URL: ' gitAddress]);
     filesInDir = dirfile(pwd);
