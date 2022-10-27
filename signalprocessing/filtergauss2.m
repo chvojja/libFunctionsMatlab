@@ -1,5 +1,5 @@
 
-function im_2 = filtergauss(nv)
+function im_2 = filtergauss2(nv)
 %% FILTERGAUSS This filteres a signal or image by gaussian filter in order to reduce ringing artefacts.
 % Its zero phase (as if it was filtered by filtfilt) because the response of the filter is real (?)
 
@@ -16,9 +16,9 @@ end
 filterType = onehotfun( {nv.HighPass,nv.LowPass, nv.BandPass} , {'HP','LP','BP'}   );
 
 y_over_x_scale_factor = nv.N;
-show_freq_domain = false;
+show_freq_domain = 1;
 
- num_rows = size(nv.X,1);
+    num_rows = size(nv.X,1);
     num_cols = size(nv.X,2);
     [X,Y] = meshgrid(1:num_cols,1:num_rows);
     freq_domain = fft2(nv.X);
@@ -46,19 +46,29 @@ switch filterType
     case 'BP'
         sc = -4*log(2) * nv.N;
         low_freq = nv.BandPass(1);
-        gauss_filterHP = 1-exp(sc*(X-freq_pass_window_center_x).^2/(2*low_freq)^2) .* exp(sc*(Y-freq_pass_window_center_y).^2/(2*low_freq)^2/y_over_x_scale_factor^2);
+        dd =100;
+        gauss_filterHP = 1-exp(sc*(X-freq_pass_window_center_x-dd).^2/(2*low_freq)^2) .* exp(sc*(Y-freq_pass_window_center_y-dd).^2/(2*low_freq)^2/y_over_x_scale_factor^2);
+        %gauss_filterHP = exp(sc*(X-freq_pass_window_center_x-dd).^2/(2*low_freq)^2) .* exp(sc*(Y-freq_pass_window_center_y-dd).^2/(2*low_freq)^2/y_over_x_scale_factor^2);
        
         high_freq = nv.BandPass(2);
         gauss_filterLP = exp(sc*(X-freq_pass_window_center_x).^2/(2*high_freq)^2) .* exp(sc*(Y-freq_pass_window_center_y).^2/(2*high_freq)^2/y_over_x_scale_factor^2);
 
         gauss_filter = gauss_filterHP.*gauss_filterLP;
 
+        
+
+      %  gw = ones(1:5000);
+       % gw(2500:L) = gausswin(L,)
+
+
+       plot([ gausswinup(40,2); ones(210,1); gausswindw(50,0.2); zeros(2000,1);] )
+     
+
 
 
 end
     gauss_filter =  mat2gray(gauss_filter);
-     plotbode(Magnitude = gauss_filter(2500:end), Fs =5000);
-%     pause
+
 
     freq_pass_window = freq_pass_window.*gauss_filter;
 
@@ -66,6 +76,9 @@ end
     adjusted_freq_domain = ifftshift(windowed_freq_domain_shifted);
     im_2 = ifft2(adjusted_freq_domain);
     if show_freq_domain
+    plotbode(Magnitude = gauss_filter(2500:end), Fs =5000);
+    pause
+
         figure, imagesc(nv.X);
         title('Original image');
 %         figure, imagesc(freq_pass_window);

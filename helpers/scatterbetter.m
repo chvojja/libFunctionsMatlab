@@ -5,7 +5,7 @@ function s = scatterbetter(varargin)
 
 s = scatter(varargin{:} ); % ,'MarkerFaceAlpha',0.5,'MarkerEdgeAlpha',0.5  );
 %colormap(gca,'hsv')
-s.MarkerFaceColor = 'k';
+%s.MarkerFaceColor = 'k';
 xlabel([]);
 ylabel([]);
 
