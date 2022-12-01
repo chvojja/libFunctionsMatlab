@@ -14,8 +14,12 @@ a = fillgaps(a,[],1); % linearfill
 x(x_L)=a(x_L);
 
 N_fill_samples = numel( find(x_L == true) );
-Ns = round(numel( x_source)/2);
+Ns = round(numel( x_source)/2); % floor
 x_source=x_source( Ns - round(N_fill_samples/2)+1  : Ns + round(N_fill_samples/2) -1);
+
+if numel(x_source)<N_fill_samples % dirty fix
+    x_source=[x_source; x_source(end)]; 
+end
 
 % makeup some new samples
 [d,p0] = lpc( x_source , N_fill_samples   );

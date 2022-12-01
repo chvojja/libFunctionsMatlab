@@ -85,6 +85,8 @@ classdef Analyzer < handle
                     varargout{1} = a.(nv.What)(nv.On);
                elseif ~isempty(nv.OnEach)
                    varargout = a.(nv.What)(nv.OnEach{:});
+               else
+                   varargout = {nv.On}; % pass input to output
                end
 
             else

@@ -10,7 +10,7 @@ arguments
     y
     nv.BracketHeigth = 0.2;
     nv.TextMargin = 0.2;
-    nv.NameValueArgs ={'-k', 'LineWidth', 2};
+    nv.NameValueArgs ={'-k', 'LineWidth', 1.2};
     nv.PlotPvalueNotStar = false;
 end
 

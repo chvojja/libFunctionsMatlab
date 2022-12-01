@@ -38,6 +38,10 @@ function y = getone(color)
                 y = [ 0.97 0.84 0.59];
             case 'k'
                 y = [ 0 0 0 ];
+            case 'w'
+                y = [ 1 1 1 ]; 
+            case 'premeksskin'
+                y = [1 0.66 0.66];
         end
     
 end
