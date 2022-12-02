@@ -1,20 +1,15 @@
-function scientificfontcompact(axes_handles,ratio)
+function scientificfontcompact(hax,ratio)
 %FONTS Summary of this function goes here
 %   Detailed explanation goes here
 arguments 
-    axes_handles = gca;
+    hax = gca;
     ratio = 0.7;
 end
-
-hax = axes_handles; % works for one axes so far
-
-
 
 ax_name = 'XAxis';
 process_axis(hax,ax_name,ratio);
 ax_name = 'YAxis';
 process_axis(hax,ax_name,ratio);
-
 
 
 function process_axis(hax,ax_name,ratio)
