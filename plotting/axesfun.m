@@ -5,6 +5,7 @@ Na = numel(axes_array);
 for i = 1:Na
     axes(axes_array(i));
     fun_handle();
+
 end
 
 

@@ -1,0 +1,8 @@
+function y = gaussian(x,mu,sig)
+%GAUSSIAN Summary of this function goes here
+%   Detailed explanation goes here
+y = exp(-(((x-mu).^2)/(2*sig.^2)));
+
+
+end
+

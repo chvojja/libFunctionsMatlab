@@ -11,7 +11,8 @@ arguments
     nv.BracketHeigth = 0.2;
     nv.TextMargin = 0.2;
     nv.NameValueArgs ={'-k', 'LineWidth', 1.2};
-    nv.PlotPvalueNotStar = false;
+    nv.PlotPvalueNotStar = true;
+    nv.FontSize = 6;
 end
 
 plevels = [0.05 0.01 0.001];
@@ -55,7 +56,7 @@ if pvalue<plevels(1)
     %plot(mean(x12) , yTextStar, ls)% the sig star sign
     switch nv.PlotPvalueNotStar
         case true
-             text(mean(x12), yTextP, lblpvalue,'HorizontalAlignment','center'); % the sig star sign
+             text(mean(x12), yTextP, lblpvalue,'FontSize',nv.FontSize,'HorizontalAlignment','center','VerticalAlignment','bottom'); % the sig star sign
         case false
              text(mean(x12), yTextStar, ls,'FontSize',ha.FontSize*1.9,'HorizontalAlignment','center'); % the sig star sign
     end

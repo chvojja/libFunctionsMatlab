@@ -1,6 +1,8 @@
 function resizeaxes_center(varargin)
 %RESIZEAXES_CENTER
-
+%parameters
+%  resizeaxes_center(handle,[w h])
+%  resizeaxes_center([w h])
 
 switch nargin
     case 1

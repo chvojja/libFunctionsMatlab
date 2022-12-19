@@ -1,0 +1,15 @@
+function hid()
+%formataxes2signalcientific
+% Suitable for scientific paper
+
+hax = gca;
+
+hax.XAxis.Visible = false;
+hax.YAxis.Visible = false;
+
+xaxisfitdata(hax);
+
+
+
+end
+
