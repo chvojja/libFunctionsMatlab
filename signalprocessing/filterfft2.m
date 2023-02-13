@@ -16,7 +16,7 @@ freq_pass_window = ones(size(x));
 
 freq_pass_window = freq_pass_window.*magnitude_vector;
 
-% plotbode(Magnitude = mag_filter(2500:end), Fs =5000);
+ plotbode(Magnitude = mag_filter(2500:end), Fs =5000);
 % pause
 
 windowed_freq_domain_shifted = freq_domain_shifted.*freq_pass_window;

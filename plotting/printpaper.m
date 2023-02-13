@@ -1,7 +1,7 @@
 function printpaper(fpname,nv)
 arguments
     fpname
-    nv.dpi = 900;
+    nv.dpi = 300;
     nv.close = true;
 end
 
