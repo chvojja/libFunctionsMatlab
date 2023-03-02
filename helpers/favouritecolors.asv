@@ -1,6 +1,6 @@
-function ycolors = favouritecolors(varargin)
+function ycolors = favouritecolors(color_names)
 %FAVOURITECOLORS 
-ycolors = [];
+
 rgb_data.epipink = [0.7176    0.2745    1.0000]; 
 rgb_data.halflife = [0.9843    0.4941    0.0784];
 rgb_data.orange = [1 0.62 0];
@@ -15,15 +15,13 @@ rgb_data.bege = [ 0.97 0.84 0.59];
 rgb_data.premeksskin = [1 0.66 0.66];
 
 if nargin ==0
-    disp('Pick a color')
-     fieldnames(rgb_data)
-else
-%     varargin = cellstr(varargin);
-%     
-    Nc = numel(varargin);
+els
+    color_names = cellstr(color_names);
+    
+    Nc = numel(color_names);
     ycolors = zeros(Nc,3);
     for c = 1:Nc
-        ycolors(c,:) = rgb_data.(varargin{c});
+        ycolors(c,:) = rgb_data.(color_names{c});
     end
 end
 

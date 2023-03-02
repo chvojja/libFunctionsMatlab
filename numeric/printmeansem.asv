@@ -48,8 +48,8 @@ for i = 1: Nout
         meandata(i) = round(meandata(i), dev_decimal ) ;
         meanStr = sprintf(['%.' num2str( dev_decimal ) 'f'], meandata(i) );  % '%.4f'
 
-    varargout{i} = [ meanStr ' ± '  devStr devMeasure ];
-    %sprintf(['%.' num2str(sigDigits) 'g±%.' num2str(sigDigits) 'g'], [mean(data(:,i))  std(data(:,i))/sqrt(numel(data(:,i)))]);
+    varargout{i} = [ meanStr ' Â± '  devStr devMeasure ];
+    %sprintf(['%.' num2str(sigDigits) 'gÂ±%.' num2str(sigDigits) 'g'], [mean(data(:,i))  std(data(:,i))/sqrt(numel(data(:,i)))]);
 end
 
 

@@ -1,0 +1,75 @@
+function [label,fileInfo]=jancaspike_detect_by_signal2lbl3(nv)
+arguments
+    nv.Signal
+    nv.Fs;
+    nv.ChanNames
+    nv.StartDn = startDn;
+    nv.DetName
+    nv.DetSettings;
+    nv.FilePath;
+    nv.Name = 'JancaSpikeDetectorDefaultSettings';
+    nv.Color = '1 0 0';
+    nv.Settings = [];
+    nv.Value = 5;
+end
+
+nv.FilePath = char(nv.FilePath);
+eegFileContent = load(nv.FilePath);
+%N=size(eegFileContent.s,2);
+label = struct;
+
+
+% Overall file info
+
+fileInfo = VKJ_eegFileContent2FileInfo(eegFileContent);
+
+[~,eegFileName,ext] = fileparts(nv.FilePath);
+fileInfo.srcSigFile = [eegFileName ext];
+
+% Nruns = numel(nv.Name);
+
+
+
+        if isempty(nv.Settings)
+            out = spike_detector_hilbert_v23(eegFileContent.s',eegFileContent.fs);
+        else
+            out = spike_detector_hilbert_v23(eegFileContent.s',eegFileContent.fs,nv.Settings); %-w 25000 -n 10000');
+        end
+        
+        
+        label.(nv.Name).name = nv.Name;
+        label.(nv.Name).color = nv.Color;
+        label.(nv.Name).instant = false;
+        label.(nv.Name).chanNames = eegFileContent.chanNames;
+        label.(nv.Name).subject = eegFileContent.subject;
+        label.(nv.Name).fileStart =  fileInfo.fileStart;
+        label.(nv.Name).fileEnd = fileInfo.fileEnd ;
+        label.(nv.Name).fileDurDn = fileInfo.fileDurDn;
+
+        label.(nv.Name).srcSigFile = fileInfo.srcSigFile;
+        
+        chans=unique(out.chan);
+        for kch = chans' %1:numel(chans)
+        %     chOne=chans(kch);
+        %     idx=out.chan==chOne;
+        
+            idx=out.chan==kch;
+            label.(nv.Name).(num2kch(kch)).posN=eegFileContent.dateN+sec2dn(out.pos(idx))';
+            label.(nv.Name).(num2kch(kch)).durN=sec2dn(out.dur(idx)');
+            label.(nv.Name).(num2kch(kch)).value=[nv.Value*ones(1,numel(find(idx)))];
+            
+            % debilni hodnoty pro kudljze
+            label.(nv.Name).(num2kch(kch)).chan=kch;
+            label.(nv.Name).(num2kch(kch)).chanType=1;
+            % debilni hodnoty pro me
+            label.(nv.Name).(num2kch(kch)).ChName=eegFileContent.chanNames{kch};
+            label.(nv.Name).(num2kch(kch)).fileStart= fileInfo.fileStart;
+            label.(nv.Name).(num2kch(kch)).fileEnd= fileInfo.fileEnd;
+            label.(nv.Name).(num2kch(kch)).fileDurDn =   fileInfo.fileDurDn;
+            label.(nv.Name).(num2kch(kch)).subject = eegFileContent.subject;
+            label.(nv.Name).(num2kch(kch)).srcSigFile = fileInfo.srcSigFile;
+        end
+
+
+
+end

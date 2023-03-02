@@ -19,8 +19,11 @@ else
      e_pos = find( xstr == 'e' | xstr == 'E'  ) ;
      if ~isempty( e_pos )
         
-        multiplier = str2num( xstr(e_pos+1:end) );
+        multiplier_if_exp_notation = str2num( xstr(e_pos+1:end) );
+        
         xstr(e_pos:end)=[];
+     else
+        multiplier_if_exp_notation = 0;
      end
 
 
@@ -40,7 +43,7 @@ else
 %          end
 
     if isempty( dot_pos )
-        digits =  length(xstr);
+        digits =  length(xstr) + multiplier_if_exp_notation;
         decimal = -digits+1 ;    % a bug - leading zeros
     else
         NbeforeDec = numel(xstr(1:dot_pos-1));
@@ -48,8 +51,9 @@ else
                  if xstr(i)~='0'
                       digits_beforedecimal=NbeforeDec-i+1;
                       digits_afterdecimal = length(xstr) - NbeforeDec -1;
-                      digits = digits_beforedecimal + digits_afterdecimal;
-                      decimal=digits_afterdecimal;
+                      correction_if_exp = double(    abs((  multiplier_if_exp_notation-digits_afterdecimal ))*( multiplier_if_exp_notation-digits_afterdecimal )>0   );
+                      digits = digits_beforedecimal + digits_afterdecimal + correction_if_exp;
+                      decimal=digits_afterdecimal + correction_if_exp;
                      return
                  end
         end
