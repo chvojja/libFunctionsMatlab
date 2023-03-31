@@ -48,5 +48,10 @@ printmeanvar_singlesig( d.mean, d.sem )
 d.sem = 2660.012
 %d.sem = 0.00151953;
 
+% two significant    https://www.quora.com/If-percentage-uncertainty-is-2-decimal-places-what-number-of-figures-should-your-values-be-too
+% 624.38 ± 7.49256 should be 624.4 ± 7.5
+% 543.107 ± 0.1412  should be 543.11 ± 0.14
+
+
 
 
